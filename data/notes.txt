@@ -12,6 +12,6 @@ This directory contains the data used for the classification
     - the dataset for anomaly detection from botnet attacks on IoT
       devices
 
-- thingspeak
+- thingspeak/
     - our compiled version of the thingspeak IoT datasets
 
