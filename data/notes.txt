@@ -1,0 +1,17 @@
+
+This directory contains the data used for the classification
+
+- asos/
+    - the ASOS files, could be the raw data and the pre-computed
+      features
+
+- iot/
+    - the IoT data files used for the Montori et al. paper
+
+- anomaly/
+    - the dataset for anomaly detection from botnet attacks on IoT
+      devices
+
+- thingspeak
+    - our compiled version of the thingspeak IoT datasets
+
