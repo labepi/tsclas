@@ -32,7 +32,7 @@ loadSource('.', 'find_tau.R')
 printdebug('Loaded libraries and functions')
 
 # reconfiguring the path for the datasets
-dataset_path='./asos/1min_2020_fev_feats'
+dataset_path='./data/asos/1min_2020_fev_feats'
 
 # getting command line args
 args = commandArgs(trailingOnly = TRUE)
