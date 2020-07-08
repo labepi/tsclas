@@ -56,7 +56,6 @@ if (length(args) == 0)
 
     # embedding delay
     #tau_l=1:50
-    tau_l=1:10
 
     # ASOS
     dataset_path='./data/asos/1min_2020_fev_feats'
@@ -65,13 +64,14 @@ if (length(args) == 0)
     #dataset_path='./data/botnet/1000'
 
     # isiot
-    #dataset_path='sources/datasets/2015'
-    #dataset_path='sources/datasets20/2015'
     #dataset_path='./data/isiot/datasets30/2015'
 
     # to make the ISIoT split
     #ISIoT = TRUE
     ISIoT = FALSE
+
+    # for the botnet 2 class mode
+    botnet_2class = FALSE
 
 } else {
     # loading the datasets
@@ -83,7 +83,7 @@ if (length(args) == 0)
     D = as.numeric(args[2])
     
     # embedding delay
-    tau_l = 1:10
+    #tau_l = 1:10
     
     SEED = as.numeric(args[3])
 
@@ -102,6 +102,14 @@ if (length(args) == 0)
     } else {
         ISIoT = args[5]
     }
+    
+    # defining the botnet two or more classification
+    if (length(args) < 6)
+    {
+        botnet_2class = FALSE
+    } else {
+        botnet_2class = args[6]
+    }
 }
 
 # defining the seed
@@ -112,7 +120,9 @@ train_pct = TRAIN_PCT # from config.R
 
 printdebug(d_name)
 
-printdebug(paste('(D,tau): ',D,',',paste(range(tau_l), collapse=':'), sep=''))
+# old debug
+#printdebug(paste('(D,tau): ',D,',',paste(range(tau_l), collapse=':'), sep=''))
+printdebug(paste('Embedding dimension D:',D))
 
 printdebug(paste('SEED:',SEED))
 
@@ -181,6 +191,16 @@ printdebug('Datasets loaded')
 
 ################ SPLIT TRAIN/TEST ###############
 
+# transforming the class in only two for the botnet:
+# - benign data
+# - malicious data
+if (botnet_2class == TRUE)
+{
+    printdebug("Botnet 2class")
+
+    y_all[y_all != 1] = 2
+} 
+
 # define the split rate
 
 # NOTE: performing the same split as the ISIoT paper
@@ -233,7 +253,7 @@ C_pos = num_tau*(C_feat_num-1)+1 # based on the FEATURES items
 printdebug(paste('Original dimension TRAIN:',paste(dim(x_train), collapse='x')))
 printdebug(paste('Original dimension TEST:',paste(dim(x_test), collapse='x')))
 
-printdebug(paste('Number of tau:',num_tau))
+printdebug(paste('Maximum number of tau:',num_tau))
 
 #############################################################
 
