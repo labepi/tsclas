@@ -87,8 +87,6 @@ if (length(args) == 0)
     
     SEED = as.numeric(args[3])
 
-    print(length(args))
-    
     # the reconfiguration of dataset path
     if (length(args) < 4)
     {
