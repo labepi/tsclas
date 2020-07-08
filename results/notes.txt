@@ -1,0 +1,5 @@
+The output results will be saved here
+
+NOTE: all the outputs should be saved as *.out, to be controlled by
+.gitignore file
+

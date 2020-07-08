@@ -1,0 +1,60 @@
+anchorage      PANC  2000  AK  "Anchorage"                  1  I
+phoenix        KPHX  2000  AZ  "Phoenix"                     2  C
+losangeles     KLAX  1947  CA  "Los Angeles"                 3  C
+oakland        KOAK  2000  CA  "Oakland"                    4  I
+ontario        KONT  2000  CA  "Ontario"                    5  I
+sacramento     KSMF  2000  CA  "Sacramento"                 6  I
+sandiego       KSAN  2000  CA  "San Diego"                  7  I
+sanfrancisco   KSFO  2000  CA  "San Francisco"               8  C
+sanjose        KSJC  2000  CA  "San Jose"                   9  I
+santaana       KSNA  2000  CA  "Santa Ana"                 10  I
+denver         KDEN  2000  CO  "Denver"                     11  C
+hartford       KBDL  2000  CT  "Hartford"                  12  I
+fortmyers      KRSW  2000  FL  "Fort Myers"                 13  C
+fortlauderdale KFLL  2000  FL  "Fort Lauderdale"            14  C
+jacksonville   KJAX  2000  FL  "Jacksonville"              15  I
+miami          KMIA  1948  FL  "Miami"                      16  C
+orlando        KMCO  2000  FL  "Orlando"                   17  I
+tampa          KTPA  2000  FL  "Tampa"                      18  C
+westpalmbeach  KPBI  2000  FL  "West Palm Beach"           19  I
+atlanta        KATL  2000  GA  "Atlanta"                    20  C
+honolulu       PHNL  2000  HI  "Honolulu"                   21  C
+kahului        PHOG  2000  HI  "Kahului"                   22  I
+chicago2       KMDW  2000  IL  "Chicago (Midway)"           23  C
+chicago        KORD  1947  IL  "Chicago (O'Hare)"           24  C
+indianapolis   KIND  2000  IN  "Indianapolis"              25  I
+neworleans     KMSY  2000  LA  "New Orleans"               26  I
+boston         KBOS  2000  MA  "Boston"                     27  C
+baltimore      KBWI  2000  MD  "Baltimore"                  28  C
+kansascity     KMCI  2000  MO  "Kansas City"               29  I
+stlouis        KSTL  2000  MO  "St. Louis"                  30  C
+detroit        KDTW  2000  MI  "Detroit"                    31  C
+minneapolis    KMSP  2000  MN  "Minneapolis"               32  I
+charlotte      KCLT  2000  NC  "Charlotte"                  33  C
+raleigh        KRDU  2000  NC  "Raleigh"                   34  I
+omaha          KOMA  2000  NE  "Omaha"                     35  I
+newark         KEWR  2000  NJ  "Newark"                    36  I
+albuquerque    KABQ  2000  NM  "Albuquerque"               37  I
+lasvegas       KLAS  2000  NV  "Las Vegas"                  38  C
+buffalo        KBUF  2000  NY  "Buffalo"                   39  I
+newyork        KNYC  1965  NY  "Central Park"               40  C
+newyork2       KJFK  2000  NY  "New York (JFK)"            41  I
+newyork3       KLGA  2000  NY  "New York (LaGuardia)"       42  C
+cleveland      KCLE  2000  OH  "Cleveland"                  43  C
+columbus       KCMH  2000  OH  "Columbus"                  44  I
+cincinnati     KCVG  2000  OH  "Cincinnati"                45  I
+portland       KPDX  2000  OR  "Portland"                   46  C
+philadelphia   KPHL  2000  PA  "Philadelphia"               47  C
+pittsburgh     KPIT  2000  PA  "Pittsburgh"                48  I
+nashvile       KBNA  2000  TN  "Nashville"                 49  I
+austin         KAUS  2000  TX  "Austin"                     50  C
+dallas2        KDAL  2000  TX  "Dallas"                     51  C
+dallas         KDFW  1975  TX  "Dallas (Fort Worth)"        52  C
+houston        KIAH  2000  TX  "Houston (Bush)"            53  I
+houston2       KHOU  2000  TX  "Houston (Hobby)"            54  C
+sanantonio     KSAT  2000  TX  "San Antonio"                55  C
+saltlakecity   KSLC  2000  UT  "Salt Lake City"            56  I
+washington     KDCA  2000  VA  "Washington, D.C. (Reagan)"  57  C
+washington2    KIAD  2000  VA  "Washington, D.C. (Dulles)" 58  I
+seattle        KSEA  1948  WA  "Seattle"                    59  C
+milwaukee      KMKE  2000  WI  "Milwaukee"                 60  I
