@@ -32,7 +32,6 @@ loadSource('.', 'find_tau.R')
 printdebug('Loaded libraries and functions')
 
 # reconfiguring the path for the datasets
-dataset_path='./data/asos/1min_2020_fev_feats'
 
 # getting command line args
 args = commandArgs(trailingOnly = TRUE)
@@ -40,8 +39,15 @@ args = commandArgs(trailingOnly = TRUE)
 if (length(args) == 0)
 {
     # loading the datasets
+    # asos
     d_name = 'asos_1min_2020_fev_1hour_spline_feats' # fev/2020
     #d_name = 'asos_1min_2020_fev_6hour_spline_feats' # fev/2020
+
+    # botnet
+    #d_name = 'HpHp_L1_mean_feats' # 
+
+    # isiot
+    #d_name = 'wunder_2015jan_spline_feats' # jan/2015
 
     # the Bandt-Pompe parameters
 
@@ -52,6 +58,20 @@ if (length(args) == 0)
     #tau_l=1:50
     tau_l=1:10
 
+    # ASOS
+    dataset_path='./data/asos/1min_2020_fev_feats'
+
+    # botnet
+    #dataset_path='./data/botnet/1000'
+
+    # isiot
+    #dataset_path='sources/datasets/2015'
+    #dataset_path='sources/datasets20/2015'
+    #dataset_path='./data/isiot/datasets30/2015'
+
+    # to make the ISIoT split
+    #ISIoT = TRUE
+    ISIoT = FALSE
 
 } else {
     # loading the datasets
@@ -66,6 +86,22 @@ if (length(args) == 0)
     tau_l = 1:10
     
     SEED = as.numeric(args[3])
+
+    if (length(args) == 4)
+    {
+        # the reconfiguration of dataset path
+        dataset_path = args[4]
+    } else {
+        dataset_path='./data/asos/1min_2020_fev_feats'
+    }
+
+    if (length(args) == 5)
+    {
+        # defining the ISIoT split
+        ISIoT = args[5]
+    } else {
+        ISIoT = FALSE
+    }
 }
 
 # defining the seed
@@ -82,7 +118,7 @@ printdebug(paste('SEED:',SEED))
 
 # 1. D
 # 2. tau, 
-# 3. length(E(g4)),
+# 3. length {(E(g4)),
 # 4. mean of G weights
 # 5. sd of G weights
 # 6. shannon entropy of G weights
@@ -138,6 +174,7 @@ if (LOAD_PRECOMPUTED == TRUE)
 
 }
 
+
 # TODO: check if these information are necessary
 
 printdebug('Datasets loaded')
@@ -145,7 +182,22 @@ printdebug('Datasets loaded')
 ################ SPLIT TRAIN/TEST ###############
 
 # define the split rate
-id_train = createDataPartition(y=y_all, p=train_pct, list=FALSE)
+
+# NOTE: performing the same split as the ISIoT paper
+if (ISIoT == TRUE)
+{
+        printdebug("ISIoT split")
+        # for loading the ISIoT split
+        stationsfile = './data/isiot/cities.usa.txt'
+        stations = read.table(stationsfile, stringsAsFactors=FALSE)
+        stations_type = stations[,7]
+
+        # using the same tag of the paper
+        inds = which(stations_type == 'C')
+        id_train = which(ceiling(1:240 / 4) %in% inds)
+} else {
+    id_train = createDataPartition(y=y_all, p=train_pct, list=FALSE)
+}
 
 # Splitting datasets
 x_train = x_all[id_train,]
@@ -181,6 +233,7 @@ C_pos = num_tau*(C_feat_num-1)+1 # based on the FEATURES items
 printdebug(paste('Original dimension TRAIN:',paste(dim(x_train), collapse='x')))
 printdebug(paste('Original dimension TEST:',paste(dim(x_test), collapse='x')))
 
+printdebug(paste('Number of tau:',num_tau))
 
 #############################################################
 
@@ -207,7 +260,7 @@ printdebug(paste('Selected tau:',dtau))
 # ths indices to extract the features for the i-th tau
 feats_tau_ind = seq(dtau,m,by=num_tau_per_feat)
 
-print(feats_tau_ind)
+#print(feats_tau_ind)
 
 # re-adjusting datasets
 x_train = x_train[,feats_tau_ind]
@@ -332,13 +385,13 @@ res = predict(rf, x_test)
 printdebug(paste('Predicted test:', paste(y_test, res, sep='-', collapse=',')))
 
 # confusion matrix
-cm = confusionMatrix(table(y_test,res))
+#cm = confusionMatrix(table(y_test,res))
+#printdebug(paste('OVERALL accuracy: ', cm$overall['Accuracy']))
+#output1 = paste('FINAL_ACC', cm$overall['Accuracy'])
 
-printdebug(paste('OVERALL accuracy: ', cm$overall['Accuracy']))
+acc = sum(res==y_test)/length(y_test)
 
-#print(sum(res==y_test)/length(y_test))
-
-output1 = paste('FINAL_ACC', cm$overall['Accuracy'])
+output1 = paste('FINAL_ACC', acc)
 
 cat(d_name,SEED,output1,'\n')
 

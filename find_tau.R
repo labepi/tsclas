@@ -95,6 +95,8 @@ find_tau = function(x, y, D=3, tau_l=1:10)
             # creating the normal multivariate
             mvx = cbind(x.df_1$H, x.df_1$C)
 
+            #print(mvx)
+
             # if there is only one sample per class
             if (robust==FALSE | nrow(mvx) == 1)
             {
