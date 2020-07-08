@@ -1,1 +1,5 @@
-The datasets for the botnet attacks
+The datasets for the botnet attacks.
+
+The 1000 and 5000 folders consists of the time series lenght considered
+from the raw data for extracting the features, respectively.
+
