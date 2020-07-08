@@ -87,20 +87,22 @@ if (length(args) == 0)
     
     SEED = as.numeric(args[3])
 
-    if (length(args) == 4)
+    print(length(args))
+    
+    # the reconfiguration of dataset path
+    if (length(args) < 4)
     {
-        # the reconfiguration of dataset path
-        dataset_path = args[4]
-    } else {
         dataset_path='./data/asos/1min_2020_fev_feats'
+    } else {
+        dataset_path = args[4]
     }
 
-    if (length(args) == 5)
+    # defining the ISIoT split
+    if (length(args) < 5)
     {
-        # defining the ISIoT split
-        ISIoT = args[5]
-    } else {
         ISIoT = FALSE
+    } else {
+        ISIoT = args[5]
     }
 }
 

@@ -1,1 +1,5 @@
 The datasets for the ISIoT analysis.
+
+The pre-computed features are on the folders datasetsNN, where NN
+consists of the maximum nuber of tau used for this computation.
+
