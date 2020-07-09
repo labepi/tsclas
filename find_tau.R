@@ -179,9 +179,9 @@ find_tau = function(x, y, D=3, tau_l=1:10)
             # TODO: check if this is necessary at this point
             if (quant_min == TRUE)
             {
-                prob_lim_i = quantile(the_z, probs=c(alpha_qt))
+                prob_lim_i = quantile(the_z, probs=c(alpha_qt), na.rm=TRUE)
             } else {
-                prob_lim_i = quantile(the_z, probs=c(1-alpha_qt))
+                prob_lim_i = quantile(the_z, probs=c(1-alpha_qt), na.rm=TRUE)
             }
 
             # making the cut
