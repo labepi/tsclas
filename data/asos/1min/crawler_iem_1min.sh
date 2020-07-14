@@ -15,7 +15,9 @@ do
 
     #echo $url
 
-    wget $url -O $i.csv 2> /dev/null
+    wget $url -O $i.csv 
+
+    #2> /dev/null
 
     #exit
 done
