@@ -43,7 +43,7 @@ if (length(args) == 0)
 {
     # loading the datasets
     # asos
-    d_name = 'asos_1min_2020_fev_1hour_spline_feats' # fev/2020
+    #d_name = 'asos_1min_2020_fev_1hour_spline_feats' # fev/2020
     #d_name = 'asos_1min_2020_fev_6hour_spline_feats' # fev/2020
 
     # botnet
@@ -64,8 +64,8 @@ if (length(args) == 0)
     #dataset_path='./data/asos/1min_2020_fev_feats'
 
     # botnet
-    #dataset_path='./data/botnet/1000'
-    dataset_path='../extern/botnet_attack_iot'
+    dataset_path='./data/botnet/1000'
+    #dataset_path='../extern/botnet_attack_iot'
 
     # isiot
     #dataset_path='./data/isiot/datasets30/2015'
