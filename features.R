@@ -1,9 +1,23 @@
 
-# TODO: see if this features extraction must go to the bandt_pompe
-# repository (features.R)
+# This script contains the functions for computing the features used in
+# our work
 
-# function to copmute the features
-# list of features:
+# the dataset should following the format:
+#
+# p1, ..., pm
+# p1, ..., pm
+# p1, ..., pm
+# ...
+# p1, ..., pm
+#
+# where p1, ..., pm are the columsn corresponding to the m data points
+# of each time series
+
+# X - the dataset containing all time series data
+# D -  the embedding dimension
+# tau_l - a list of embedding delays, the returning features are
+#       collapsed sequentially by the tau used to compute them
+# Returns the following computed list of features (for each time series):
 # 1. D
 # 2. tau, 
 # 3. length(E(g4)),
@@ -16,96 +30,32 @@
 # 10. (H) shannon entropy of BP distribution
 # 11. (C) complexity of BP dist.
 # 12. (FI) fisher information of BP dist.
-# 13. j
-# 
-transformPST = function(x, myD, mytau_l, savePST=FALSE)
+extractFeatures = function(X, D=3, tau_l=1:10)
 {
-    # number of features
-    featsnum = 13 #14
-    # features as function of tau
-    # - all series will be together
-    pst = matrix(0, ncol=featsnum, nrow=0) #n_train*length(myD_l)*length(mytau_l2))
+    num_of_features = 12
 
-    # TODO: acho que nao tem esse num, e ver como fazer com o y
+    #buildTime = Sys.time()
 
-    # number of features
-    num = dim(x)[2] - 1
-
-    # length of series
-    m = dim(x)[1]
+    # TODO: check if this is the best strategy
+    M = matrix(0, nrow=nrow(X), ncol=num_of_features*length(tau_l))
     
-    # each feature
-    for(j in 1:num)
+    for(i in 1:nrow(X))
     {
-        xi = as.numeric(x[,j+1])
-
-        i = 1
-        for (mytau in mytau_l)
-        {
-            if (checkParameters(m, myD, mytau, lim=2) == FALSE)
-            {
-                next
-            }
-
-            #print(paste('D',myD,'tau',mytau))
-        
-            bpd = bandt_pompe_distribution(xi, D=myD, tau=mytau)
-
-            #print(bpd)
-
-            # shannon entropy
-            H = shannon_entropy(bpd$probabilities, normalized=TRUE)
-    
-            # statistical complexity
-            C = complexity(bpd$probabilities,H)
-
-            # fisher information
-            FI = fisher_information(bpd$probabilities)
-
-            g4 = bandt_pompe_transition_graph(xi, D=myD, tau=mytau)
-
-            #print(g4)
-            
-            pst = rbind(pst,
-                        c(                          
-                          myD, 
-                          mytau, 
-                          length(E(g4)),
-                          mean(E(g4)$weight),
-                          sd(E(g4)$weight),
-                          shannon_entropy(E(g4)$weight, norm=T),
-                          complexity(E(g4)$weight, norm=T),
-                          fisher_information(E(g4)$weight),
-                          sum(E(g4)$weight[which_loop(g4)]),
-                          H,
-                          C,
-                          FI,
-                          j
-                         )
-                        )
-
-            i = i + 1
-        }
-
-        # saving objects
-        if (savePST == TRUE)
-        {
-            saveRDS(pst, file=paste(features_path, '/properties_',attr(x, 'station'),'.dat', sep=''))
-            #saveRDS(g, file=paste('data/properties_chaotic_map_',k,'_',xlab,'-g.dat', sep=''))
-            #saveRDS(bpd, file=paste('data/properties_chaotic_map_',k,'_',xlab,'-bpd.dat', sep=''))
-            #saveRDS(pst, file=paste('data/properties_',k,'_',j,'-pst.dat', sep=''))
-        }
-
-        #quit()
-        #print(dim(pst))
+        M[i,] = extractFeatureSingle(X[i,], D, tau_l)
     }
 
-    return(pst)
 
+    #buildTime = difftime(Sys.time(), buildTime, units='sec')
+    #print(buildTime)
+
+    return(M)
 }
 
-# function to copmute the features
-# list of features:
+# x - a single time series data
+# D -  the embedding dimension
+# tau_l - a list of embedding delays, the returning features are
+#       collapsed sequentially by the tau used to compute them
+# Returns the following computed list of features:
 # 1. D
 # 2. tau, 
 # 3. length(E(g4)),
@@ -118,9 +68,7 @@ transformPST = function(x, myD, mytau_l, savePST=FALSE)
 # 10. (H) shannon entropy of BP distribution
 # 11. (C) complexity of BP dist.
 # 12. (FI) fisher information of BP dist.
-# 13. j
-# 
-transformPSTSingle = function(x, myD, mytau_l, savePST=FALSE)
+extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
 {
     # the features to compute
     mycolumns = c('D', 'tau', 'lenE', 'meanEw', 'sdEw', 'Hw', 'Cw', 'Fw', 
@@ -133,21 +81,26 @@ transformPSTSingle = function(x, myD, mytau_l, savePST=FALSE)
     m = length(x)
     
     # computing features for each tau
-    for (mytau in mytau_l)
+    for (tau in tau_l)
     {
-        if (checkParameters(m, myD, mytau, lim=2) == FALSE)
+        if (checkParameters(m, D, tau, lim=2) == FALSE)
         {
             next
         }
+        
+        #buildTime = Sys.time()
+        # pre-computing the symbols for both bpd ans g
+        symbols = bandt_pompe_c(as.numeric(x), D, tau)
+        #symbols = bandt_pompe(as.numeric(x), D, tau)
 
-        #print(paste('D',myD,'tau',mytau))
-    
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #print(buildTime)
+
         # computing the bandt_pompe distribution
-        bpd = bandt_pompe_distribution(x, D=myD, tau=mytau)
+        bpd = bandt_pompe_distribution(symbols, D=D, tau=tau, useSymbols=TRUE)
 
         # computing the bandt pompe transition graph
-        g = bandt_pompe_transition(x, D=myD, tau=mytau)
-        g4 = bandt_pompe_transition_graph(x, D=myD, tau=mytau)
+        g = bandt_pompe_transition(symbols, D=D, tau=tau, useSymbols=TRUE)
         
         # bpd distribution features
         
@@ -159,9 +112,9 @@ transformPSTSingle = function(x, myD, mytau_l, savePST=FALSE)
 
         # fisher information
         Fpi = fisher_information(bpd$probabilities)
-
-
+        
         # transition graph features
+
         # edges and weights (non-zero transitions)
         edges = g != 0
         weights = g[edges]
@@ -174,6 +127,7 @@ transformPSTSingle = function(x, myD, mytau_l, savePST=FALSE)
         
         # mean of edges weights
         sdEw = sd(weights)
+        #if (is.na(sdEw)){ sdEw = 0 }
 
         # information theory quantifiers from edges weights
         Hw = shannon_entropy(weights, normalized=TRUE)
@@ -182,23 +136,22 @@ transformPSTSingle = function(x, myD, mytau_l, savePST=FALSE)
 
         # probability of self transitions
         pst = matrix.trace(g)
+        
+        # the current vector of features
+        curdata = c(D, tau, lenE, meanEw, sdEw, Hw, Cw, Fw, pst, Hpi, Cpi, Fpi)
+
+        # making NA and NaN values to be 0?
+        if (na.rm == TRUE)
+        {
+            curdata[is.na(curdata)] = 0
+        }
 
         # joining each features vector
-        data = c(data, c(myD, mytau, lenE, meanEw, sdEw, Hw, Cw, Fw, pst, Hpi, Cpi, Fpi))
-
+        data = c(data, curdata)
     }
 
-    # aggregating the features together
-    feats = matrix(data, ncol=length(mycolumns), byrow=TRUE)
-    colnames(feats) = mycolumns
-
-    # saving objects
-    #if (savePST == TRUE)
-    #{
-    #    saveRDS(pst, file=paste(features_path, '/properties_',attr(x, 'station'),'.dat', sep=''))
-    #}
-
-    return(feats)
-
+    return(data)
 }
+
+
 
