@@ -13,3 +13,6 @@ suppressMessages(library(diptest))
 # for kde2d
 suppressMessages(library(MASS))
 
+# for the Cpp functions
+suppressMessages(library(Rcpp))
+

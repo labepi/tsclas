@@ -29,6 +29,9 @@ loadSource(skinnydip_path,'func.R')
 # separable classes in the CCEP
 loadSource('.', 'find_tau.R')
 
+# the Cpp functions
+sourceCpp('C/ccep_functions.cpp')
+
 printdebug('Loaded libraries and functions')
 
 # reconfiguring the path for the datasets
@@ -44,7 +47,7 @@ if (length(args) == 0)
     #d_name = 'asos_1min_2020_fev_6hour_spline_feats' # fev/2020
 
     # botnet
-    #d_name = 'HpHp_L1_mean_feats' # 
+    d_name = 'HpHp_L1_mean_feats' # 
 
     # isiot
     #d_name = 'wunder_2015jan_spline_feats' # jan/2015
@@ -58,10 +61,11 @@ if (length(args) == 0)
     #tau_l=1:50
 
     # ASOS
-    dataset_path='./data/asos/1min_2020_fev_feats'
+    #dataset_path='./data/asos/1min_2020_fev_feats'
 
     # botnet
     #dataset_path='./data/botnet/1000'
+    dataset_path='../extern/botnet_attack_iot'
 
     # isiot
     #dataset_path='./data/isiot/datasets30/2015'
@@ -137,15 +141,17 @@ printdebug(paste('SEED:',SEED))
 # 9. PST
 # 10. (H) shannon entropy of BP distribution
 # 11. (C) complexity of BP dist.
-# 12. the column with the number of series
-# 13. the column with the class of the series
-# 14. (FI) fisher information of BP dist.
+# 12. (FI) fisher information of BP dist.
 FEATURES=c(3,6,7,8,9,10,11,12)
 
 # position of the features (H,C), according to the vector above
-H_feat_num = 6 #2
-C_feat_num = 7 #3
+H_feat_num = 6 
+C_feat_num = 7 
 
+# TODO: this is a test using all the 10 computed features
+FEATURES=3:12
+H_feat_num = 8
+C_feat_num = 9
 
 printdebug('Loading datasets')
 
@@ -155,7 +161,6 @@ if (LOAD_PRECOMPUTED == TRUE)
     # load pre-computed transformations
         
     ###########################################
-    # testing ASOS
 
     pathname = paste(dataset_path,'/D',D,'/',d_name,'.csv', sep='')
 
@@ -267,6 +272,8 @@ num_tau_per_feat = m/length(FEATURES)
 # subset of x_train, filtering the columns with H and C values, for the
 # tau_l considered
 sub_x_train = x_train[,c(H_pos:(H_pos+num_tau-1),C_pos:(C_pos+num_tau-1))]
+
+#x=sub_x_train; y=y_train; tau_l=1:num_tau
 
 # finding the best tau for this train set
 dtau = find_tau(x=sub_x_train, y=y_train, D=D, tau_l=1:num_tau)

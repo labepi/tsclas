@@ -103,8 +103,15 @@ find_tau = function(x, y, D=3, tau_l=1:10)
                 # all series from the class
                 x.df_i = x.df_1
             } else {
+
+                #buildTime = Sys.time()
+
                 # finding the clusters with skinny-dip
                 skres = skinnyDipClusteringFullSpace(mvx,significanceLevel=alpha_sk)
+
+                #buildTime = difftime(Sys.time(), buildTime, units='sec')
+                #print(paste('time skinny:',buildTime))
+
 
                 # number of clusters
                 numclus = length(unique(skres[skres>0]))
@@ -126,47 +133,71 @@ find_tau = function(x, y, D=3, tau_l=1:10)
                     ifelse((bwd_x == 0 | is.na(bwd_x)), 0.1, bwd_x),
                     ifelse((bwd_y == 0 | is.na(bwd_y)), 0.1, bwd_y))
 
+            #buildTime = Sys.time()
+
+            # TODO: check if this can be done in Cpp
+            # and if it is necessary
+
             # computing the kernel density estimation of the points
-            bivn.kde = kde2d(x.df_i$H, x.df_i$C, n=num_kde, h=bwd,
+            km = kde2d(x.df_i$H, x.df_i$C, n=num_kde, h=bwd,
                          lims=c(dxlim[1],dxlim[2],
                                 dylim[1],dylim[2]))
 
+            #buildTime = difftime(Sys.time(), buildTime, units='sec')
+            #print(paste('time kde:',buildTime))
 
             ##########################################
             # NOTE: removing the points outside the CCEP limits
             ##########################################
 
-            # looping at each x,y from the kde2d
-            for (i in 1:num_kde)
-            {
-                for(j in 1:num_kde)
-                {
+            #buildTime = Sys.time()
 
-                    # a point to check
-                    p = c(i, j)
+            # zeroing the points outside the CCEP limits
+            km$z = limCCEP(as.numeric(km$x), as.numeric(km$y), as.matrix(km$z), 
+                           as.matrix(lim_min), as.matrix(lim_max))
 
-                    # finding the point p1 in H min and max curves 
-                    # which is the first H that is >= than p1
-                    id_min = min(which(lim_min$H >= bivn.kde$x[p[1]]))
-                    id_max = min(which(lim_max$H >= bivn.kde$x[p[1]]))
-                    
-                    # checking if this point is NOT between C_min and C_max range
-                    # for this specific H positions
-                    if (bivn.kde$y[p[2]] < lim_min[id_min,'SC']
-                        |
-                        lim_max[id_max,'SC'] < bivn.kde$y[p[2]])
-                    {
-                        # zeroing this point significance
-                        bivn.kde$z[p[1],p[2]] = 0
-                    }
-                }
-            }
+            #buildTime = difftime(Sys.time(), buildTime, units='sec')
+            #print(paste('time filter:',buildTime))
 
-            
+            #image(km)
+            #plot.ccep(D=D, add=T)
+
+            ## looping at each x,y from the kde2d
+            #for (i in 1:num_kde)
+            #{
+            #    # finding the point p1 in H min and max curves 
+            #    # which is the first H that is >= than p1
+            #    #id_min = min(which(lim_min$H >= km$x[p[1]]))
+            #    #id_max = min(which(lim_max$H >= km$x[p[1]]))
+            #    id_min = min(which(lim_min$H >= km$x[i]))
+            #    id_max = min(which(lim_max$H >= km$x[i]))
+
+
+            #    for(j in 1:num_kde)
+            #    {
+
+            #        #print(paste('id_min:',id_min,'id_max:',id_max))
+            #        
+            #        # checking if this point is NOT between C_min and C_max range
+            #        # for this specific H positions
+            #        #if (km$y[p[2]] < lim_min[id_min,'SC']
+            #        #    |
+            #        #    lim_max[id_max,'SC'] < km$y[p[2]])
+            #        if (km$y[j] < lim_min[id_min,'SC']
+            #            |
+            #            lim_max[id_max,'SC'] < km$y[j])
+            #        {
+            #            # zeroing this point significance
+            #            #km$z[p[1],p[2]] = 0
+            #            km$z[i,j] = 0
+            #        }
+            #    }
+            #}
+
             # converting the density to probability
-            if (sum(bivn.kde$z) != 0)
+            if (sum(km$z) != 0)
             {
-                bivn.kde$z = bivn.kde$z/sum(bivn.kde$z)
+                km$z = km$z/sum(km$z)
             }
 
             # TODO: check this
@@ -174,7 +205,7 @@ find_tau = function(x, y, D=3, tau_l=1:10)
             # zeroing the lowest probabilities
             
             # first filtering to have only the values with non-zero probability
-            the_z = quantile(bivn.kde$z[bivn.kde$z!=0])
+            the_z = quantile(km$z[km$z!=0])
 
             # TODO: check if this is necessary at this point
             if (quant_min == TRUE)
@@ -185,11 +216,10 @@ find_tau = function(x, y, D=3, tau_l=1:10)
             }
 
             # making the cut
-            bivn.kde$z[bivn.kde$z < prob_lim_i] = 0
-
+            km$z[km$z < prob_lim_i] = 0
 
             # storing the Z of kde for this class
-            mat_z[,d_class] = c(bivn.kde$z)
+            mat_z[,d_class] = c(km$z)
  
         } # end d_class
 
