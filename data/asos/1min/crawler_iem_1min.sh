@@ -15,8 +15,9 @@ do
 
     #echo $url
 
-    wget $url -O $i.csv 
-
+    wget -4 $url -O $i.csv -o wget.log.out
+   
+    # the caller will control this
     #2> /dev/null
 
     #exit
