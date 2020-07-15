@@ -4,6 +4,30 @@
 library(lubridate)
 #source('utils.R')
 
+args = commandArgs(trailingOnly = TRUE)
+
+# default values with no args
+time_int = '1 min'
+myto = '2020-01-31 23:59:00'
+label = '1month'
+
+if (length(args) >= 1)
+{
+    time_int = args[1]
+}
+
+if (length(args) >= 2)
+{
+    myto = args[2]
+}
+
+if (length(args) >= 3)
+{
+    label = args[3]
+}
+
+#print(args)
+
 # TODO: needs feats_l to be defined, it will be the types of classes of
 # the new dataset
 
@@ -21,10 +45,15 @@ feats_l = c(
 
 # create the new adjusted dataset
 myfrom='2020-01-01 00:00:00'
-myto='2020-01-31 23:59:00'
+#myto='2020-01-31 23:59:00' # defined as command line argument
 
 # the column times if anyone has lost
-alltimes = seq(from = ymd_hms(myfrom), to = ymd_hms(myto), by='min')
+alltimes = seq(from = ymd_hms(myfrom), to = ymd_hms(myto), by=time_int)
+
+#print(alltimes)
+#print(length(alltimes))
+
+#quit()
 
 # size of perfect dataset
 N = length(alltimes)
@@ -34,7 +63,13 @@ N = length(alltimes)
 dataset_path = './raw'
 
 # the dataset file
-savefile="asos_2020_jan_1month.csv"
+savefile=paste("asos_2020_jan_",
+               label,"_",
+               gsub(' ', '', time_int),
+               ".csv", sep='')
+
+#print(savefile)
+#quit()
 
 stationsfile='all_1min.txt'
 
@@ -71,12 +106,21 @@ for(name in stations)
     # converting times
     x$times = as.POSIXct(strptime(x$valid.UTC., format='%Y-%m-%d %H:%M', tz='UTC'))
 
+    # what's the required times that exists in the dataset
+    inds = alltimes %in% x$times
+
+    # what's of the dataset that are in required times
+    inds2 = x$times %in% alltimes
+
+    #print(head(x))
+
     # TODO: check this
     # estimating relative humidity (fahrenheit)
     #x[,'relh'] = 100-(25/9)*(x$tmpf-x$dwpf)
 
-    # size of current dataset
-    n = nrow(x)
+    # size of current dataset, after filtering by time
+    #n = nrow(x)
+    n = sum(inds)
 
     # check if a minimum size necessary
     if (n/N < minprop)
@@ -101,16 +145,19 @@ for(name in stations)
     # NOTE: each feature is a different type (class) identified by its
     # position i in the feats_l list
 
-    inds = alltimes %in% x$times
-    inds2 = x$times %in% alltimes
 
     j = 0
 
     # adjusting the data by type
     for(i in 1:length(feats_l))
     {
+        na_num = sum(is.na(x[inds2,feats_l[i]]))
+
+        #cat(N,na_num,'\n')
+        #print(x[inds2,feats_l[i]])
+        
         # check if each time series has a minimum size necessary 
-        if( (N-sum(is.na(x[inds2,feats_l[i]])))/N < minprop )
+        if( ((N-na_num)/N) < minprop )
         {
             next
         }
