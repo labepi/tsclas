@@ -10,24 +10,24 @@ fi
 
 num_tau=30
 
-# time span and interval are informed by command line
+# time span is informed by command line
 time_span=$2
-time_int=$3
 
-# name
-d_name='asos_2020_jan_'$time_span'_'$time_int
+# time interval 
+time_int_l=( "1min" "5min" "10min" "15min" )
 
 # path
 dataset_path='./data/asos/1min'
 
-echo $d_name
+for time_int in "${time_int_l[@]}"
+do       
+    # name
+    d_name='asos_2020_jan_'$time_span'_'$time_int
 
-Rscript computing_features.R $d_name $dataset_path $D $num_tau
+    echo $d_name
 
-# getting the fields names
-#for d_name in $(cat data/botnet/demonstrate_structure.csv | sed 's/,/ /g')
-#do
-#    echo $d_name
-#    Rscript computing_features.R $d_name $dataset_path $D $num_tau
-#done
+    Rscript computing_features.R $d_name $dataset_path $D $num_tau \ 
+        &> "outputs/output_"$d_name"_D"$D".out" 
+
+done
 
