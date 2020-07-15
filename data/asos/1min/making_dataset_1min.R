@@ -95,18 +95,33 @@ for(name in stations)
     #x$timesadj = as.POSIXct(x$times - minutes(minute))
 
     # the matrix of adjusted data
-    ds = matrix(NA, ncol=N+1, nrow=length(feats_l))
-
+    #ds = matrix(NA, ncol=N+1, nrow=length(feats_l))
+    # TODO: check if this is a slower option
+    ds = matrix(NA, ncol=N+1, nrow=0) 
     # NOTE: each feature is a different type (class) identified by its
     # position i in the feats_l list
 
     inds = alltimes %in% x$times
     inds2 = x$times %in% alltimes
 
+    j = 0
+
     # adjusting the data by type
     for(i in 1:length(feats_l))
     {
-        ds[i,c(inds, TRUE)] = c(x[inds2,feats_l[i]], i)
+        # check if each time series has a minimum size necessary 
+        if( (N-sum(is.na(x[inds2,feats_l[i]])))/N < minprop )
+        {
+            next
+        }
+
+        # just add the time series if it has the minimum number of valid
+        # points, without NA values
+        j = j+1
+        ds = rbind(ds, rep(NA, N+1))
+        
+        #ds[i,c(inds, TRUE)] = c(x[inds2,feats_l[i]], i)
+        ds[j,c(inds, TRUE)] = c(x[inds2,feats_l[i]], i)
     }
     
     # toqWed 12 Feb 2020 07:37:59 PM -03 log
