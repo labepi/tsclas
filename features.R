@@ -37,6 +37,9 @@ extractFeatures = function(X, D=3, tau_l=1:10)
 
     #buildTime = Sys.time()
 
+    # the length of the series
+    m = ncol(X)
+
     # checking the max number of tau, for this dataset, and if the
     # informed tau_l can be used
     max_tau = min(length(tau_l), checkMaxTau(m, D, lim=2))
