@@ -380,7 +380,8 @@ control = trainControl(method="repeatedcv",
                         allowParallel = TRUE)
 
 # the features interval for tunning
-tunegrid = expand.grid(.mtry=c(1:15),.ntree=c(100, 200, 500, 1000, 1500))
+#tunegrid = expand.grid(.mtry=c(1:15),.ntree=c(100, 200, 500, 1000, 1500))
+tunegrid = expand.grid(.mtry=c(1:6),.ntree=c(200, 350, 500))
 
 
 # training the customized classifier
