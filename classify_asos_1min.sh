@@ -27,8 +27,8 @@ do
         
         echo $d_name $seed
 
-        continue
-    
+        #continue
+
         Rscript classify.R $d_name $D $seed $dataset_path
         
     done
