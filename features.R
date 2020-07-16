@@ -39,16 +39,15 @@ extractFeatures = function(X, D=3, tau_l=1:10)
 
     # checking the max number of tau, for this dataset, and if the
     # informed tau_l can be used
-    max_tau = min(length(tau_l), m/(D-1)-1)
+    max_tau = min(length(tau_l), floor(m/(D-1)-1))
 
     # TODO: check if this is the best strategy
     M = matrix(0, nrow=nrow(X), ncol=num_of_features*max_tau)
-    
+
     for(i in 1:nrow(X))
     {
         M[i,] = extractFeatureSingle(X[i,], D, tau_l)
     }
-
 
     #buildTime = difftime(Sys.time(), buildTime, units='sec')
     #print(buildTime)
@@ -92,6 +91,8 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
         {
             next
         }
+
+        #print(tau)
         
         #buildTime = Sys.time()
         # pre-computing the symbols for both bpd ans g
