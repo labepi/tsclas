@@ -32,12 +32,17 @@
 # 12. (FI) fisher information of BP dist.
 extractFeatures = function(X, D=3, tau_l=1:10)
 {
+    # TODO: check if this value must be given or set ouside here
     num_of_features = 12
 
     #buildTime = Sys.time()
 
+    # checking the max number of tau, for this dataset, and if the
+    # informed tau_l can be used
+    max_tau = min(length(tau_l), m/(D-1)-1)
+
     # TODO: check if this is the best strategy
-    M = matrix(0, nrow=nrow(X), ncol=num_of_features*length(tau_l))
+    M = matrix(0, nrow=nrow(X), ncol=num_of_features*max_tau)
     
     for(i in 1:nrow(X))
     {
