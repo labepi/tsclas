@@ -25,7 +25,7 @@ do
     do
         d_name="asos_2020_jan_"$time_span"_"$time_int"_feats"
         
-        echo $d_name $seed
+        #echo $d_name $seed
 
         #continue
 
