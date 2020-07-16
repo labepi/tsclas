@@ -39,7 +39,7 @@ extractFeatures = function(X, D=3, tau_l=1:10)
 
     # checking the max number of tau, for this dataset, and if the
     # informed tau_l can be used
-    max_tau = min(length(tau_l), floor(m/(D-1)-1))
+    max_tau = min(length(tau_l), checkMaxTau(m, D, lim=2))
 
     # TODO: check if this is the best strategy
     M = matrix(0, nrow=nrow(X), ncol=num_of_features*max_tau)
@@ -92,8 +92,6 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
             next
         }
 
-        #print(tau)
-        
         #buildTime = Sys.time()
         # pre-computing the symbols for both bpd ans g
         symbols = bandt_pompe_c(as.numeric(x), D, tau)
