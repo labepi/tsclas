@@ -119,6 +119,10 @@ res = extractFeatures(X, D, tau_l)
 # the number of features computed
 num_feats = ncol(res)
 
+# here, the num_tau miust be adjusted with checking the max possible number of tau, 
+# for this dataset, and if the informed tau_l can be used
+num_tau = min(length(tau_l), checkMaxTau(m, D, lim=2))
+
 # the number of features compiuted for each pair (D,tau)
 num_feats_each = num_feats/num_tau
 

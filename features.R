@@ -50,6 +50,9 @@ extractFeatures = function(X, D=3, tau_l=1:10)
     for(i in 1:nrow(X))
     {
         M[i,] = extractFeatureSingle(X[i,], D, tau_l)
+
+        #print(M[i,])
+        #print(length(M[i,]))
     }
 
     #buildTime = difftime(Sys.time(), buildTime, units='sec')
