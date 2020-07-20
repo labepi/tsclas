@@ -59,7 +59,7 @@ find_tau = function(x, y, D=3, tau_l=1:10)
     num_tau = length(tau_l)
 
     # the unique classes from y_train
-    d_class_l = unique(y_train)
+    d_class_l = unique(y)
 
     # the number of classes
     num_class = length(d_class_l)
@@ -76,10 +76,10 @@ find_tau = function(x, y, D=3, tau_l=1:10)
     {
         # getting the features for the current dtau
         x.df = data.frame(
-                        id=as.character(1:nrow(x_train)), 
+                        id=as.character(1:nrow(x)), 
                         H=as.numeric(x[,dtau]), 
                         C=as.numeric(x[,dtau+num_tau]), 
-                        Class=as.factor(y_train))
+                        Class=as.factor(y))
         
         # computing the limits for the whole classes
         dxlim = range(x.df$H + c(-limxy, limxy))
