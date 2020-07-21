@@ -1,0 +1,10 @@
+The list of airports was obtained from here:
+
+https://ourairports.com/data/
+
+The file airports.csv was downloaded, and split in 6 files with the
+command:
+
+split -d -l 11000 airports.csv airports --additional-suffix=.csv
+
+
