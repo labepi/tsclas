@@ -14,7 +14,7 @@ num_tau=30
 time_span=$2
 
 # name
-d_name="asos_2020_jan_"$time_span"_1hour.csv"
+d_name="asos_2020_jan_"$time_span"_1hour"
 
 # path
 dataset_path='./data/asos/1hour'
