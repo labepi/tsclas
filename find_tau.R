@@ -91,7 +91,10 @@ find_tau = function(x, y, D=3, tau_l=1:10)
             # filterging by class
             x.df_1 = x.df[x.df$Class == d_class_l[d_class],]
 
-            # test if it will use robust or not (skinny-dip)
+            # creating the normal multivariate
+            mvx = cbind(x.df_1$H, x.df_1$C)
+
+            #print(mvx)
 
             # if there is only one sample per class
             if (robust==FALSE | nrow(mvx) == 1)
@@ -100,13 +103,9 @@ find_tau = function(x, y, D=3, tau_l=1:10)
                 x.df_i = x.df_1
             } else {
 
-                #buildTime = Sys.time()
-            
                 # doing skinny-dip
-                # creating the normal multivariate
-                mvx = cbind(x.df_1$H, x.df_1$C)
-    
-                #print(mvx)
+                
+                #buildTime = Sys.time()
 
                 # finding the clusters with skinny-dip
                 skres = skinnyDipClusteringFullSpace(mvx,significanceLevel=alpha_sk)
