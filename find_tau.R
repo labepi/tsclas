@@ -194,29 +194,31 @@ find_tau = function(x, y, D=3, tau_l=1:10)
             #    }
             #}
 
+            # TODO: check this
+
+            # zeroing the lowest probabilities
+            
+#            # first filtering to have only the values with non-zero probability
+#            #the_z = quantile(km$z[km$z!=0])
+#            the_z = km$z[km$z!=0]
+#
+#            # TODO: check if this is necessary at this point
+#            if (quant_min == TRUE)
+#            {
+#                prob_lim_i = quantile(the_z, probs=c(alpha_qt), na.rm=TRUE)
+#            } else {
+#                prob_lim_i = quantile(the_z, probs=c(1-alpha_qt), na.rm=TRUE)
+#            }
+#
+#            # making the cut
+#            km$z[km$z < prob_lim_i] = 0
+
             # converting the density to probability
             if (sum(km$z) != 0)
             {
                 km$z = km$z/sum(km$z)
             }
 
-            # TODO: check this
-
-            # zeroing the lowest probabilities
-            
-            # first filtering to have only the values with non-zero probability
-            the_z = quantile(km$z[km$z!=0])
-
-            # TODO: check if this is necessary at this point
-            if (quant_min == TRUE)
-            {
-                prob_lim_i = quantile(the_z, probs=c(alpha_qt), na.rm=TRUE)
-            } else {
-                prob_lim_i = quantile(the_z, probs=c(1-alpha_qt), na.rm=TRUE)
-            }
-
-            # making the cut
-            km$z[km$z < prob_lim_i] = 0
 
             # storing the Z of kde for this class
             mat_z[,d_class] = c(km$z)
