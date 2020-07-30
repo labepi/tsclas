@@ -67,9 +67,20 @@ X_train = as.data.frame(cbind(X_train, y_train))
 X_train$y_train = as.factor(y_train)
 
 # train
-clf = IBk(y_train ~ ., data=X_train, control=Weka_control(K=3))
+ctrl = trainControl(method="repeatedcv",repeats = 3) 
+        #,classProbs=TRUE,summaryFunction = twoClassSummary)
+
+clf = train(X_train, y_train, method = "knn", 
+            trControl = ctrl, preProcess = c("center","scale"), tuneLength = 20)
+
+#knnFit <- train(Direction ~ ., data = training, method = "knn", trControl = ctrl, preProcess = c("center","scale"), tuneLength = 20)
+
+#clf = IBk(y_train ~ ., data=X_train, control=Weka_control(K=3))
+
 # classify
 res = predict(clf, X_test)
+
+print(res)
 
 myacc = sum(res == y_test)/length(y_test)
 
