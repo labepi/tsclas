@@ -2,7 +2,6 @@
 
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plot
 
 #d_name = 'data/asos_1min_2020_fev_1day.csv' # fev/2020
 #d_name = 'data/asos_1min_2020_fev_1week.csv' # fev/2020
