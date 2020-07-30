@@ -1,7 +1,7 @@
 # perform classification on airports with R tools
 
 library(zoo)
-suppressMessages(library(RWeka))
+#suppressMessages(library(RWeka))
 #library(dplyr)
 library(caret)
 
