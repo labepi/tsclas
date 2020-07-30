@@ -74,7 +74,8 @@ for i in range(1):
     # RAW time series
     
     # jan 2020
-    d_name = 'data/asos/1min/asos_2020_jan_1day_15min.csv' 
+    #d_name = 'data/asos/1min/asos_2020_jan_1day_15min.csv' 
+    d_name = 'data/asos/1min/asos_2020_jan_1day_15min_spline.csv' 
     
     # fev/2020
     #d_name = 'data/datasets/1min_2020_fev_raw/asos_1min_2020_fev_'+name+'_spline.csv' 
