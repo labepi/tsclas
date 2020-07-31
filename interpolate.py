@@ -3,15 +3,23 @@
 import numpy as np
 import pandas as pd
 
-#d_name = 'data/asos_1min_2020_fev_1day.csv' # fev/2020
-#d_name = 'data/asos_1min_2020_fev_1week.csv' # fev/2020
-d_name = 'data/asos/1min/asos_2020_jan_1day_15min.csv' # fev/2020
+import sys
 
-dsname = 'data/asos/1min/asos_2020_jan_1day_15min_spline.csv' # fev/2020
+#d_name = 'data/asos/1min/asos_2020_jan_1day_15min.csv' # jan/2020
+#dsname = 'data/asos/1min/asos_2020_jan_1day_15min_spline.csv' # jan/2020
+
+# the path and name of the file to interpolate
+d_name = sys.argv[1]
+dsname = d_name.replace(".csv", "_spline.csv")
+
+#print(d_name)
+#print(dsname)
+
+#quit()
 
 X = pd.read_csv(d_name, header=None)
 
-print('loaded')
+#print('loaded')
 
 y = X.iloc[:,-1] # 8736
 X = X.iloc[:,:-1] # all columns except last one
