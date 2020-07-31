@@ -8,10 +8,10 @@ import time
 
 # classifiers
 #from sklearn.neighbors import KNeighborsClassifier
-#from sklearn.svm import SVC
+from sklearn.svm import SVC
 #from sklearn.tree import DecisionTreeClassifier
 #from sklearn.naive_bayes import GaussianNB
-#from sklearn.ensemble import RandomForestClassifier
+from sklearn.ensemble import RandomForestClassifier
 #from sklearn.linear_model import SGDClassifier
 #from sklearn.gaussian_process import GaussianProcessClassifier
 #from sklearn.neural_network import MLPClassifier
@@ -25,6 +25,7 @@ from sktime.classification.distance_based import KNeighborsTimeSeriesClassifier
 from sktime.classification.compose import TimeSeriesForestClassifier
 from sktime.classification.shapelet_based import ShapeletTransformClassifier
 from sktime.classification.dictionary_based import BOSSEnsemble
+from sktime.classification.frequency_based import RandomIntervalSpectralForest
 
 # utils
 from sklearn.preprocessing import StandardScaler
@@ -52,8 +53,8 @@ def from_table_to_data(x):
 
 # number of runs
 #numtotal = 10
-numtotal = 10
-startseq = 11
+numtotal = 1
+startseq = 1
 
 # looping for each time series cut
 #for i in range(25):
@@ -102,7 +103,8 @@ for i in range(1):
         print(d_name, end=' ', flush=True)
 
         # spliting train/test
-        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=rstate)
+        X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, 
+                random_state=rstate)
         
         # converting to sktime format
         X_train2 = from_table_to_data(X_train)
@@ -115,17 +117,22 @@ for i in range(1):
         ###   - check the cross-validation options
         ###   - do the ensemble here
         
-        #start = time.time()
         t = time.process_time()
         knn = KNeighborsTimeSeriesClassifier(metric="dtw")
         knn.fit(X_train2, y_train2) # ignore the FutureWarning from sklearn
         y_pred = knn.predict(X_test2)
         acc = accuracy_score(y_test, y_pred)
-        #end = time.time()
-        #lap = 1 #(end - start)
         lap = time.process_time() - t
         print('knn: '+str(acc)+' '+str(lap), end=' ', flush=True)
 
+        t = time.process_time()
+        randf = RandomForestClassifier()
+        randf.fit(X_train, y_train)
+        y_pred = randf.predict(X_test)
+        acc = accuracy_score(y_test, y_pred)
+        lap = time.process_time() - t
+        print('randf: '+str(acc)+' '+str(lap), end=' ', flush=True)
+        
         t = time.process_time()
         tsf = TimeSeriesForestClassifier()
         tsf.fit(X_train2, y_train2)
@@ -133,6 +140,13 @@ for i in range(1):
         lap = time.process_time() - t
         print('tsf: '+str(acc)+' '+str(lap), end=' ', flush=True)
 
+        t = time.process_time()
+        rise = RandomIntervalSpectralForest()
+        rise.fit(X_train2, y_train2)
+        acc = rise.score(X_test2, y_test2)
+        lap = time.process_time() - t
+        print('rise: '+str(acc)+' '+str(lap), end=' ', flush=True)
+        
         #t = time.process_time()
         #st = ShapeletTransformClassifier()
         #st.fit(X_train2, y_train2)
@@ -141,8 +155,8 @@ for i in range(1):
         #print('st: '+str(acc)+' '+str(lap), end=' ', flush=True)
         
         # TODO: check if remove boss for less i's
-        #if i >= 15:
-        if i >= 0:
+        if i >= 15:
+        #if i >= 0:
             print('boss: 0 0', flush=True)
         else:
             t = time.process_time()
