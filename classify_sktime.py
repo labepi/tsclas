@@ -92,10 +92,11 @@ X_train, X_test, y_train, y_test = train_test_split(X, y,
         test_size=0.2, random_state=seed)
 
 # scaling data
-scaler = StandardScaler()
-scaler.fit(X_train)
-scaler.transform(X_train)
-scaler.transform(X_test)
+scaler = StandardScaler().fit(X_train.values)
+X_train = pd.DataFrame(scaler.transform(X_train.values), 
+        index=X_train.index, columns=X_train.columns)
+X_test = pd.DataFrame(scaler.transform(X_test.values), 
+        index=X_test.index, columns=X_test.columns)
 
 # converting to sktime format
 X_train2 = from_table_to_data(X_train)
