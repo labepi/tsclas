@@ -69,8 +69,9 @@ def from_table_to_data(x):
 # RAW time series
 
 # jan 2020
-#d_name = 'data/asos/1min/asos_2020_jan_1day_15min.csv' 
-#d_name = 'data/asos/1min/asos_2020_jan_1day_15min_spline.csv' 
+d_path = 'data/asos/1min' 
+#d_name = 'asos_2020_jan_1day_15min' 
+d_name = 'asos_2020_jan_1day_15min_spline' 
 
 # loading data
 X = pd.read_csv(d_path+'/'+d_name+'.csv', header=None)
@@ -89,6 +90,12 @@ print(d_name, end=' ', flush=True)
 # spliting train/test
 X_train, X_test, y_train, y_test = train_test_split(X, y, 
         test_size=0.2, random_state=seed)
+
+# scaling data
+scaler = StandardScaler()
+scaler.fit(X_train)
+scaler.transform(X_train)
+scaler.transform(X_test)
 
 # converting to sktime format
 X_train2 = from_table_to_data(X_train)
