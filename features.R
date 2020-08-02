@@ -87,6 +87,13 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
     # all features will be together
     data = c()
 
+    # TODO: check this
+    # removing the NA's in the series before computing their features
+    if (na.rm == TRUE)
+    {
+        x = x[!is.na(x)]
+    }
+
     # length of series
     m = length(x)
     
@@ -150,11 +157,9 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
         # the current vector of features
         curdata = c(D, tau, lenE, meanEw, sdEw, Hw, Cw, Fw, pst, Hpi, Cpi, Fpi)
 
-        # making NA and NaN values to be 0?
-        if (na.rm == TRUE)
-        {
-            curdata[is.na(curdata)] = 0
-        }
+        # TODO: check this:
+        # making NA and NaN features values to be 0?
+        curdata[is.na(curdata)] = 0
 
         # joining each features vector
         data = c(data, curdata)
