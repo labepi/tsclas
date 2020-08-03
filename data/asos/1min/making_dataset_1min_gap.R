@@ -155,7 +155,8 @@ for(name in stations)
     # the matrix of adjusted data
     #ds = matrix(NA, ncol=N+1, nrow=length(feats_l))
     # TODO: check if this is a slower option
-    ds = matrix(NA, ncol=N+1, nrow=0) 
+    ds = matrix(NA, ncol=1+N+1, nrow=0) 
+    # 1+N+1 => ASOS_CODE + feats + class
     # NOTE: each feature is a different type (class) identified by its
     # position i in the feats_l list
 
@@ -199,7 +200,7 @@ for(name in stations)
         ds_j[gap_start:(gap_start+gap_size-1)] = NA
 
         # saving the time series to dataset
-        ds[j,c(inds, TRUE)] = c(ds_j, i)
+        ds[j,c(TRUE, inds, TRUE)] = c(name, ds_j, i)
     }
     
     # toqWed 12 Feb 2020 07:37:59 PM -03 log

@@ -1,7 +1,7 @@
 # this script gets the filtered stations and create a dataset, according
 # to the type of feats determined
 
-library(lubridate)
+suppressMessages(library(lubridate))
 #source('utils.R')
 
 args = commandArgs(trailingOnly = TRUE)
@@ -9,7 +9,7 @@ args = commandArgs(trailingOnly = TRUE)
 # default values with no args
 time_int = '1 min'
 myto = '2020-01-31 23:59:00'
-label = '1month'
+label = '1day'
 
 if (length(args) >= 1)
 {
@@ -141,10 +141,10 @@ for(name in stations)
     # the matrix of adjusted data
     #ds = matrix(NA, ncol=N+1, nrow=length(feats_l))
     # TODO: check if this is a slower option
-    ds = matrix(NA, ncol=N+1, nrow=0) 
+    ds = matrix(NA, ncol=1+N+1, nrow=0) 
+    # 1+N+1 => ASOS_CODE + feats + class
     # NOTE: each feature is a different type (class) identified by its
     # position i in the feats_l list
-
 
     j = 0
 
@@ -168,7 +168,7 @@ for(name in stations)
         ds = rbind(ds, rep(NA, N+1))
         
         #ds[i,c(inds, TRUE)] = c(x[inds2,feats_l[i]], i)
-        ds[j,c(inds, TRUE)] = c(x[inds2,feats_l[i]], i)
+        ds[j,c(TRUE, inds, TRUE)] = c(name, x[inds2,feats_l[i]], i)
     }
     
     # toqWed 12 Feb 2020 07:37:59 PM -03 log
