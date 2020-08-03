@@ -180,7 +180,7 @@ for(name in stations)
         # just add the time series if it has the minimum number of valid
         # points, without NA values
         j = j+1
-        ds = rbind(ds, rep(NA, N+1))
+        ds = rbind(ds, rep(NA, 1+N+1))
 
         # the time series data
         ds_j = x[inds2,feats_l[i]]

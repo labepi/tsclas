@@ -52,7 +52,6 @@ alltimes = seq(from = ymd_hms(myfrom), to = ymd_hms(myto), by=time_int)
 
 #print(alltimes)
 #print(length(alltimes))
-
 #quit()
 
 # size of perfect dataset
@@ -165,7 +164,7 @@ for(name in stations)
         # just add the time series if it has the minimum number of valid
         # points, without NA values
         j = j+1
-        ds = rbind(ds, rep(NA, N+1))
+        ds = rbind(ds, rep(NA, 1+N+1))
         
         #ds[i,c(inds, TRUE)] = c(x[inds2,feats_l[i]], i)
         ds[j,c(TRUE, inds, TRUE)] = c(name, x[inds2,feats_l[i]], i)
