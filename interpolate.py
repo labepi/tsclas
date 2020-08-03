@@ -21,8 +21,10 @@ X = pd.read_csv(d_name, header=None)
 
 #print('loaded')
 
-y = X.iloc[:,-1] # 8736
-X = X.iloc[:,:-1] # all columns except last one
+names = X.iloc[:,0] # asos names (first column)
+y = X.iloc[:,-1] # last column
+X = X.loc[:, X.columns != 0]
+X = X.iloc[:,:-1] # all columns except first and last
 
 ## filling NA values
 #X.interpolate(method='linear', axis=1, inplace=True,limit_direction='both')
@@ -30,7 +32,8 @@ X = X.iloc[:,:-1] # all columns except last one
 X.interpolate(method='spline', order=3, axis=1, inplace=True,limit_direction='both')
 X.fillna(0, inplace=True) # for filling the sides
 
-# returning y column
+# returning names and y columns
+X.insert(0, 'names', names)
 X['y'] = y
 
 # saving dataset imputed
