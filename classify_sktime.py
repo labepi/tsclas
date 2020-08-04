@@ -65,10 +65,9 @@ if (len(sys.argv) != 4):
 # RAW time series
 
 # jan 2020
-#d_path = 'data/asos/1min' 
-#d_name = 'asos_2020_jan_1day_15min' 
-#d_name = 'asos_2020_jan_1day_15min_spline' 
-
+d_path = 'data/asos/1min' 
+d_name = 'asos_2020_jan_1day_15min_spline' 
+seed=1
 
 # getting arguments
 d_path=sys.argv[1]
@@ -80,10 +79,12 @@ seed=int(sys.argv[3])
 X = pd.read_csv(d_path+'/'+d_name+'.csv', header=None)
 
 # removing the label column
+names = X.iloc[:,0] # asos names (first column)
 y = X.iloc[:,-1] # last column
-X = X.iloc[:,:-1] # all columns except last one
+X = X.loc[:, X.columns != 0]
+X = X.iloc[:,:-1] # all columns except last
 
-print(X.shape)
+#print(X.shape)
 
 # looping for each simulation
 #for seed in range(startseq,startseq+numtotal):
@@ -94,24 +95,21 @@ print(d_name, end=' ', flush=True)
 X_train, X_test, y_train, y_test = train_test_split(X, y, 
         test_size=0.2, random_state=seed)
 
-#print('BEFORE')
-#print(X_train)
+# NOTE: since time series points can not be considered features, the
+# standardizatino must occur by rows, not columns
 
-# scaling data
-scaler = StandardScaler().fit(X_train.values)
-X_train = pd.DataFrame(scaler.transform(X_train.values), 
-        index=X_train.index, columns=X_train.columns)
-X_test = pd.DataFrame(scaler.transform(X_test.values), 
-        index=X_test.index, columns=X_test.columns)
+# standardization of time series data
+scaler = StandardScaler()
+X_train = pd.DataFrame(scaler.fit_transform(X_train.values.transpose()).transpose(),
+                        index=X_train.index, columns=X_train.columns)
+X_test = pd.DataFrame(scaler.fit_transform(X_test.values.transpose()).transpose(),
+                        index=X_test.index, columns=X_test.columns)
 
 # converting to sktime format
 X_train2 = from_table_to_data(X_train)
 X_test2 = from_table_to_data(X_test)
 y_train2 = np.asarray(y_train)
 y_test2 = np.asarray(y_test)
-
-#print('AFTER')
-#print(X_train)
 
 # classifiers
 
@@ -133,23 +131,23 @@ acc = accuracy_score(y_test, y_pred)
 lap = time.process_time() - t
 print('randf: '+str(acc)+' '+str(lap), end=' ', flush=True)
 
-## tsf
-#t = time.process_time()
-#tsf = TimeSeriesForestClassifier(random_state=seed)
-#tsf.fit(X_train2, y_train2)
-#y_pred = tsf.predict(X_test2)
-#acc = accuracy_score(y_test, y_pred)
-#lap = time.process_time() - t
-#print('tsf: '+str(acc)+' '+str(lap), end=' ', flush=True)
-#
-## rise
-#t = time.process_time()
-#rise = RandomIntervalSpectralForest(random_state=seed)
-#rise.fit(X_train2, y_train2)
-#y_pred = rise.predict(X_test2)
-#acc = accuracy_score(y_test, y_pred)
-#lap = time.process_time() - t
-#print('rise: '+str(acc)+' '+str(lap), end=' ', flush=True)
+# tsf
+t = time.process_time()
+tsf = TimeSeriesForestClassifier(random_state=seed)
+tsf.fit(X_train2, y_train2)
+y_pred = tsf.predict(X_test2)
+acc = accuracy_score(y_test, y_pred)
+lap = time.process_time() - t
+print('tsf: '+str(acc)+' '+str(lap), end=' ', flush=True)
+
+# rise
+t = time.process_time()
+rise = RandomIntervalSpectralForest(random_state=seed)
+rise.fit(X_train2, y_train2)
+y_pred = rise.predict(X_test2)
+acc = accuracy_score(y_test, y_pred)
+lap = time.process_time() - t
+print('rise: '+str(acc)+' '+str(lap), end=' ', flush=True)
 
 #t = time.process_time()
 #st = ShapeletTransformClassifier()

@@ -24,7 +24,7 @@ X = pd.read_csv(d_name, header=None)
 names = X.iloc[:,0] # asos names (first column)
 y = X.iloc[:,-1] # last column
 X = X.loc[:, X.columns != 0]
-X = X.iloc[:,:-1] # all columns except first and last
+X = X.iloc[:,:-1] # all columns except last
 
 ## filling NA values
 #X.interpolate(method='linear', axis=1, inplace=True,limit_direction='both')
