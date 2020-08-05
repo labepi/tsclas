@@ -35,6 +35,10 @@ extractFeatures = function(X, D=3, tau_l=1:10)
     # TODO: check if this value must be given or set ouside here
     num_of_features = 12
 
+    # the features to compute
+    mycolumns = c('D', 'tau', 'lenE', 'meanEw', 'sdEw', 'Hw', 'Cw', 'Fw', 
+            'PST', 'Hpi', 'Cpi', 'Fpi')
+    
     #buildTime = Sys.time()
 
     # the length of the series
@@ -58,6 +62,8 @@ extractFeatures = function(X, D=3, tau_l=1:10)
     #buildTime = difftime(Sys.time(), buildTime, units='sec')
     #print(buildTime)
 
+    colnames(M) = mycolumns
+
     return(M)
 }
 
@@ -80,19 +86,16 @@ extractFeatures = function(X, D=3, tau_l=1:10)
 # 12. (FI) fisher information of BP dist.
 extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
 {
-    # the features to compute
-    mycolumns = c('D', 'tau', 'lenE', 'meanEw', 'sdEw', 'Hw', 'Cw', 'Fw', 
-            'PST', 'Hpi', 'Cpi', 'Fpi')
     
     # all features will be together
     data = c()
 
     # TODO: check this
     # removing the NA's in the series before computing their features
-    if (na.rm == TRUE)
-    {
-        x = x[!is.na(x)]
-    }
+    #if (na.rm == TRUE)
+    #{
+    #    x = x[!is.na(x)]
+    #}
 
     # length of series
     m = length(x)
@@ -169,4 +172,110 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
 }
 
 
+
+
+# Functions for computing the (H,C) paris for all tau_l
+# this function is used in the single step classification
+#
+# X - the dataset containing all time series data
+# D -  the embedding dimension
+# tau_l - a list of embedding delays, the returning features are
+#       collapsed sequentially by the tau used to compute them
+# Returns the following computed list of features (for each time series):
+# 1. (H) shannon entropy of BP distribution
+# 2. (C) complexity of BP dist.
+extractFeaturesHC = function(X, D=3, tau_l=1:10)
+{
+    # TODO: check if this value must be given or set ouside here
+    num_of_features = 2
+
+    #buildTime = Sys.time()
+
+    # the length of the series
+    m = ncol(X)
+
+    # checking the max number of tau, for this dataset, and if the
+    # informed tau_l can be used
+    max_tau = min(length(tau_l), checkMaxTau(m, D, lim=2))
+
+    # TODO: check if this is the best strategy
+    M = matrix(0, nrow=nrow(X), ncol=num_of_features*max_tau)
+
+    for(i in 1:nrow(X))
+    {
+        M[i,] = extractFeatureSingleHC(X[i,], D, tau_l)
+
+        #print(M[i,])
+        #print(length(M[i,]))
+    }
+
+    #buildTime = difftime(Sys.time(), buildTime, units='sec')
+    #print(buildTime)
+
+    return(M)
+}
+
+
+
+# computing the (H,C) pairs for all tau_l of a single time series
+# x - a single time series data
+# D -  the embedding dimension
+# tau_l - a list of embedding delays, the returning features are
+#       collapsed sequentially by the tau used to compute them
+# Returns the following computed list of features:
+# 1. (H) shannon entropy of BP distribution
+# 2. (C) complexity of BP dist.
+extractFeatureSingleHC = function(x, D=3, tau_l=1:10, na.rm=TRUE)
+{
+    # all features will be together
+    data = c()
+
+    # TODO: check this
+    # removing the NA's in the series before computing their features
+    #if (na.rm == TRUE)
+    #{
+    #    x = x[!is.na(x)]
+    #}
+
+    # length of series
+    m = length(x)
+    
+    # computing features for each tau
+    for (tau in tau_l)
+    {
+        if (checkParameters(m, D, tau, lim=2) == FALSE)
+        {
+            next
+        }
+
+        #buildTime = Sys.time()
+        # pre-computing the symbols for both bpd ans g
+        symbols = bandt_pompe_c(as.numeric(x), D, tau)
+        #symbols = bandt_pompe(as.numeric(x), D, tau)
+
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #print(buildTime)
+
+        # computing the bandt_pompe distribution
+        bpd = bandt_pompe_distribution(symbols, D=D, tau=tau, useSymbols=TRUE)
+
+        # shannon entropy
+        Hpi = shannon_entropy(bpd$probabilities, normalized=TRUE)
+    
+        # statistical complexity
+        Cpi = complexity(bpd$probabilities, Hpi)
+
+        # the current vector of features
+        curdata = c(Hpi, Cpi)
+
+        # TODO: check this:
+        # making NA and NaN features values to be 0?
+        curdata[is.na(curdata)] = 0
+
+        # joining each features vector
+        data = c(data, curdata)
+    }
+
+    return(data)
+}
 

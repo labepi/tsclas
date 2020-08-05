@@ -16,3 +16,5 @@ suppressMessages(library(MASS))
 # for the Cpp functions
 suppressMessages(library(Rcpp))
 
+# for computing matrix operations
+suppressMessages(library(matrixcalc))

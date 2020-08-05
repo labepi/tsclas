@@ -4,7 +4,7 @@
 # y: the y_train classes
 # D: the embedding dimension
 # tau_l: the list of embedding delays (tau) to test
-find_tau = function(x, y, D=3, tau_l=1:10)
+find_tau = function(x, y, D=3, tau_l=1:10, debug=TRUE) # FALSE
 {
     # parameters definition
     #######################
@@ -259,10 +259,13 @@ find_tau = function(x, y, D=3, tau_l=1:10)
 
         }
 
-        cat('LIM',robust, quant_min, dtau, 
-        sum(1/num_class*res_i, na.rm=T), # prob
-        sum(1/num_class*res_1, na.rm=T), # max
-        '\n')
+        if (debug==TRUE)
+        {
+            cat('LIM',robust, quant_min, dtau, 
+            sum(1/num_class*res_i, na.rm=T), # prob
+            sum(1/num_class*res_1, na.rm=T), # max
+            '\n')
+        }
         
         # adding to the list
         res_l = c(res_l, sum(1/num_class*res_i, na.rm=T)) # prob

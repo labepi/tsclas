@@ -12,6 +12,7 @@ DEBUG=TRUE
 
 # to load the pre-computed features for a given dataset
 LOAD_PRECOMPUTED=TRUE
+#LOAD_PRECOMPUTED=FALSE
 
 # the seed to use
 # NOTE: it will be overwritten if passed as command line argument
