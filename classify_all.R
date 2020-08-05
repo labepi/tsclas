@@ -93,7 +93,7 @@ if (length(args) == 0)
     D = as.numeric(args[2])
     
     # embedding delay
-    #tau_l = 1:10
+    tau_l = 1:30
     
     SEED = as.numeric(args[3])
 
