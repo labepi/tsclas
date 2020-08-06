@@ -38,6 +38,10 @@ sourceCpp('C/ccep_functions.cpp')
 # the methods for extracting features
 loadSource('.', 'features.R')
 
+# TODO: if used, move it in includes.R
+library(randomForest)
+
+
 printdebug('Loaded libraries and functions')
 
 # reconfiguring the path for the datasets
@@ -244,6 +248,9 @@ printdebug(paste('Original dimension TEST:',paste(dim(x_test), collapse='x')))
 
 # Step 1. 
 
+
+buildTotalTime = Sys.time()
+
 printdebug('Selecting features')
 
 buildTime = Sys.time()
@@ -256,8 +263,8 @@ Ncol = ncol(sub_x_train)
 # adjusting features: all Hs, all Cs
 sub_x_train = sub_x_train[,c(seq(1, Ncol, by=2), seq(2, Ncol, by=2))]
 
-print(head(sub_x_train))
-print(dim(sub_x_train))
+#print(head(sub_x_train))
+#print(dim(sub_x_train))
 
 buildTime = difftime(Sys.time(), buildTime, units='sec')
 print(buildTime)
@@ -378,79 +385,99 @@ x_test  = predict(transform, x_test)
 
 # performing a custom caret package extension
 
-printdebug('Tunning randomForest parameters')
+# a comment
+#if (FALSE)
+#{
+#    
+#printdebug('Tunning randomForest parameters')
+#
+## tunning metric is accuracy
+#metric = "Accuracy"
+#
+## creating the custom classifier
+#customRF = list(type = "Classification", library = "randomForest", loop = NULL)
+#
+## configuring tunning parametrs
+#customRF$parameters = data.frame(parameter = c("mtry", "ntree"),
+#                                  class = rep("numeric", 2),
+#                                  label = c("mtry", "ntree"))
+#
+## setting options and functions
+#customRF$grid = function(x, y, len = NULL, search = "grid") {}
+#customRF$fit  = function(x, y, wts, param, lev, last, weights, classProbs) {
+#  randomForest(x, y,
+#               mtry = param$mtry,
+#               ntree=param$ntree)
+#}
+#
+##Predict label
+#customRF$predict = function(modelFit, newdata, preProc = NULL, submodels = NULL)
+#   predict(modelFit, newdata)
+#
+##Predict prob
+#customRF$prob = function(modelFit, newdata, preProc = NULL, submodels = NULL)
+#   predict(modelFit, newdata, type = "prob")
+#
+##customRF$sort   = function(x) x[order(x[,1]),]
+#customRF$levels = function(x) x$classes
+#
+## if parallelization is enabled
+#if (DO_PARALLEL)
+#{
+#    if (CORES_NUM==-1)
+#        cores = makeCluster(detectCores()-1)
+#    else
+#        cores = makeCluster(CORES_NUM)
+#    registerDoParallel(cores = cores)
+#}
+#
+################# BEGIN TRAIN ###############
+#
+## train model
+#control = trainControl(method="repeatedcv", 
+#                        number=10, 
+#                        repeats=3,
+#                        allowParallel = TRUE)
+#
+## the features interval for tunning
+##tunegrid = expand.grid(.mtry=c(1:15),.ntree=c(100, 200, 500, 1000, 1500))
+#tunegrid = expand.grid(.mtry=c(1:6),.ntree=c(200, 350, 500))
+##tunegrid = expand.grid(.mtry=c(2),.ntree=c(500))
+#
+#
+## training the customized classifier
+##rf = train(x_train, as.factor(y_train), 
+##                method=customRF, 
+##                metric=metric, 
+##                tuneGrid=tunegrid, 
+##                trControl=control)
+#
+#ntree=200
+#rf = train(x_train, as.factor(y_train), method="rf", ntree=ntree) # metric=metric, tuneGrid=tunegrid, trControl=control,
+#
+#print(rf)
+#
+#printdebug(paste('Tunned parameters: ',
+#                 paste(c('mtry', 'ntree'), rf$bestTune,
+#                       collapse=' ')))
+#
+#printdebug(paste('TRAIN accuracy: ',
+#                    rf$results[rownames(rf$bestTune),'Accuracy']))
+#
+#}
 
-# tunning metric is accuracy
-metric = "Accuracy"
+# TODO: check these parameters
+# NOTE: the same parameters as the python randf version
+ntree=200
+mtry=2
 
-# creating the custom classifier
-customRF = list(type = "Classification", library = "randomForest", loop = NULL)
+rf = randomForest(x_train, as.factor(y_train), mtry=mtry, ntree=ntree)
 
-# configuring tunning parametrs
-customRF$parameters = data.frame(parameter = c("mtry", "ntree"),
-                                  class = rep("numeric", 2),
-                                  label = c("mtry", "ntree"))
-
-# setting options and functions
-customRF$grid = function(x, y, len = NULL, search = "grid") {}
-customRF$fit  = function(x, y, wts, param, lev, last, weights, classProbs) {
-  randomForest(x, y,
-               mtry = param$mtry,
-               ntree=param$ntree)
-}
-
-#Predict label
-customRF$predict = function(modelFit, newdata, preProc = NULL, submodels = NULL)
-   predict(modelFit, newdata)
-
-#Predict prob
-customRF$prob = function(modelFit, newdata, preProc = NULL, submodels = NULL)
-   predict(modelFit, newdata, type = "prob")
-
-#customRF$sort   = function(x) x[order(x[,1]),]
-customRF$levels = function(x) x$classes
-
-# if parallelization is enabled
-if (DO_PARALLEL)
-{
-    if (CORES_NUM==-1)
-        cores = makeCluster(detectCores()-1)
-    else
-        cores = makeCluster(CORES_NUM)
-    registerDoParallel(cores = cores)
-}
-
-################ BEGIN TRAIN ###############
-
-# train model
-control = trainControl(method="repeatedcv", 
-                        number=10, 
-                        repeats=3,
-                        allowParallel = TRUE)
-
-# the features interval for tunning
-#tunegrid = expand.grid(.mtry=c(1:15),.ntree=c(100, 200, 500, 1000, 1500))
-tunegrid = expand.grid(.mtry=c(1:6),.ntree=c(200, 350, 500))
-#tunegrid = expand.grid(.mtry=c(2),.ntree=c(500))
-
-
-# training the customized classifier
-rf = train(x_train, as.factor(y_train), 
-                method=customRF, 
-                metric=metric, 
-                tuneGrid=tunegrid, 
-                trControl=control)
-
-printdebug(paste('Tunned parameters: ',
-                 paste(c('mtry', 'ntree'), rf$bestTune,
-                       collapse=' ')))
-
-printdebug(paste('TRAIN accuracy: ',
-                    rf$results[rownames(rf$bestTune),'Accuracy']))
+printdebug(paste('TRAIN accuracy: ', 1 - rf$err.rate[ntree,1]))
 
 #summary(rf)
-#plot(rf)
 #print(rf)
+#plot(rf)
 
 ################ BEGIN TEST ###############
 
@@ -459,6 +486,10 @@ printdebug(paste('TRAIN accuracy: ',
 
 # predicting on x_test
 res = predict(rf, x_test)
+
+
+# final classification step
+buildTotalTime = difftime(Sys.time(), buildTotalTime, units='sec')
 
 printdebug(paste('Predicted test:', paste(y_test, res, sep='-', collapse=',')))
 
@@ -471,5 +502,5 @@ acc = sum(res==y_test)/length(y_test)
 
 output1 = paste('FINAL_ACC', acc)
 
-cat(d_name,SEED,output1,'\n')
+cat(d_name,SEED,output1,buildTotalTime,'\n')
 
