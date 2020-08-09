@@ -9,9 +9,14 @@ import time
 #d_name = 'data/asos/1min/asos_2020_jan_1day_15min.csv' # jan/2020
 #dsname = 'data/asos/1min/asos_2020_jan_1day_15min_spline.csv' # jan/2020
 
+method='linear'
+#method='polynomial'
+#method='spline'
+
 # the path and name of the file to interpolate
 d_name = sys.argv[1]
-dsname = d_name.replace(".csv", "_spline.csv")
+dsname = d_name.replace(".csv", "_"+method+".csv")
+#dsname = d_name.replace(".csv", "_spline.csv")
 
 #print(d_name)
 #print(dsname)
@@ -40,7 +45,7 @@ X.fillna(0, inplace=True) # for filling the sides
 endTotal = time.time()
 
 # total time taken
-print(f"TOTAL TIME: {endTotal - startTotal}")
+print("TOTAL TIME:", endTotal - startTotal)
 
 # returning names and y columns
 X.insert(0, 'names', names)
