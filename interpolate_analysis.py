@@ -33,8 +33,19 @@ startTotal = time.time()
 ## filling NA values
 #X.interpolate(method='linear', axis=1, inplace=True,limit_direction='both')
 #X.interpolate(method='polynomial', order=3,axis=1,inplace=True,limit_direction='both')
-X.interpolate(method='spline', order=3, axis=1, inplace=True,limit_direction='both')
-X.fillna(0, inplace=True) # for filling the sides
+#X.interpolate(method='spline', order=3, axis=1, inplace=True,limit_direction='both')
+#X.fillna(0, inplace=True) # for filling the sides
+
+# TODO: performing interpolation by each series to take account of the
+# time spent
+for i in range(0, X.shape[0]):
+    startIn = time.time()
+    xi = X.iloc[i,:]
+    #xi.interpolate(method='linear', order=3, limit_direction='both')
+    #xi.interpolate(method='polynomial', order=3, limit_direction='both')
+    xi.interpolate(method='spline', order=3, limit_direction='both')
+    endIn = time.time()
+    print(i,endIn-startIn)
 
 # end time
 endTotal = time.time()
@@ -47,6 +58,6 @@ X.insert(0, 'names', names)
 X['y'] = y
 
 # saving dataset imputed
-X.to_csv(dsname,header=False, index=False)
+#X.to_csv(dsname,header=False, index=False)
 
 
