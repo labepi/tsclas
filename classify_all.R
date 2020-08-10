@@ -152,11 +152,11 @@ printdebug(paste('SEED:',SEED))
 # 10. (H) shannon entropy of BP distribution
 # 11. (C) complexity of BP dist.
 # 12. (FI) fisher information of BP dist.
-FEATURES=c(3,6,7,8,9,10,11,12)
+#FEATURES=c(3,6,7,8,9,10,11,12)
 
 # position of the features (H,C), according to the vector above
-H_feat_num = 6 
-C_feat_num = 7 
+#H_feat_num = 6 
+#C_feat_num = 7 
 
 # TODO: this is a test using all the 10 computed features
 FEATURES=3:12

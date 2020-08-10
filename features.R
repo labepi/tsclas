@@ -184,7 +184,7 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
 # Returns the following computed list of features (for each time series):
 # 1. (H) shannon entropy of BP distribution
 # 2. (C) complexity of BP dist.
-extractFeaturesHC = function(X, D=3, tau_l=1:10)
+extractFeaturesHC = function(X, D=3, tau_l=1:10, showTime=FALSE)
 {
     # TODO: check if this value must be given or set ouside here
     num_of_features = 2
@@ -203,8 +203,19 @@ extractFeaturesHC = function(X, D=3, tau_l=1:10)
 
     for(i in 1:nrow(X))
     {
-        M[i,] = extractFeatureSingleHC(X[i,], D, tau_l)
+        if (showTime == TRUE)
+        {
+            buildTimeSeries = Sys.time()
+        }
+        
+        M[i,] = extractFeatureSingleHC(X[i,], D, tau_l, showTime=showTime)
 
+
+        if (showTime == TRUE)
+        {
+            buildTimeSeries = difftime(Sys.time(), buildTimeSeries, units='sec')
+            cat('TIME PER SERIES:',buildTimeSeries,'\n')
+        }
         #print(M[i,])
         #print(length(M[i,]))
     }
@@ -225,7 +236,7 @@ extractFeaturesHC = function(X, D=3, tau_l=1:10)
 # Returns the following computed list of features:
 # 1. (H) shannon entropy of BP distribution
 # 2. (C) complexity of BP dist.
-extractFeatureSingleHC = function(x, D=3, tau_l=1:10, na.rm=TRUE)
+extractFeatureSingleHC = function(x, D=3, tau_l=1:10, na.rm=TRUE, showTime=FALSE)
 {
     # all features will be together
     data = c()
@@ -248,22 +259,54 @@ extractFeatureSingleHC = function(x, D=3, tau_l=1:10, na.rm=TRUE)
             next
         }
 
-        #buildTime = Sys.time()
-        # pre-computing the symbols for both bpd ans g
-        symbols = bandt_pompe_c(as.numeric(x), D, tau)
-        #symbols = bandt_pompe(as.numeric(x), D, tau)
-
-        #buildTime = difftime(Sys.time(), buildTime, units='sec')
-        #print(buildTime)
-
+        if (showTime == TRUE)
+        {
+            buildTimeTau = Sys.time()
+        }
+        
         # computing the bandt_pompe distribution
-        bpd = bandt_pompe_distribution(symbols, D=D, tau=tau, useSymbols=TRUE)
-
+        bpd = bandt_pompe_distribution(as.numeric(x), D=D, tau=tau)
+        #bpd = bandt_pompe_distribution2(as.numeric(x), D=D, tau=tau) #old version
         # shannon entropy
         Hpi = shannon_entropy(bpd$probabilities, normalized=TRUE)
-    
         # statistical complexity
         Cpi = complexity(bpd$probabilities, Hpi)
+
+#        # pre-computing the symbols for both bpd ans g
+#        #buildTime = Sys.time()
+#        #symbols = bandt_pompe_c(as.numeric(x), D, tau)
+#        ##symbols = bandt_pompe(as.numeric(x), D, tau)
+#        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+#        #cat('\tTIME SYMBOLS:',buildTime,'\n')
+#
+#        # computing the bandt_pompe distribution
+#        buildTime = Sys.time()
+#        bpd = bandt_pompe_distribution(as.numeric(x), D=D, tau=tau)
+#        #bpd = bandt_pompe_distribution2(as.numeric(x), D=D, tau=tau)
+#        #bpd = bandt_pompe_distribution(symbols, D=D, tau=tau, useSymbols=TRUE)
+#        #bpd = bandt_pompe_distribution2(symbols, D=D, tau=tau, useSymbols=TRUE)
+#        buildTime = difftime(Sys.time(), buildTime, units='sec')
+#        cat('\tTIME BPD:',buildTime,'\n')
+#
+#        # shannon entropy
+#        buildTime = Sys.time()
+#        Hpi = shannon_entropy(bpd$probabilities, normalized=TRUE)
+#        buildTime = difftime(Sys.time(), buildTime, units='sec')
+#        cat('\tTIME SHANNON:',buildTime,'\n')
+#    
+#        # statistical complexity
+#        buildTime = Sys.time()
+#        Cpi = complexity(bpd$probabilities, Hpi)
+#        buildTime = difftime(Sys.time(), buildTime, units='sec')
+#        cat('\tTIME COMPLEXITY:',buildTime,'\n')
+
+        #### end of the method per tau
+        if (showTime == TRUE)
+        {
+            buildTimeTau = difftime(Sys.time(), buildTimeTau, units='sec')
+            cat('TIME PER TAU:',buildTimeTau,'\n')
+        }
+
 
         # the current vector of features
         curdata = c(Hpi, Cpi)
