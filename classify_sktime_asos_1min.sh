@@ -1,7 +1,8 @@
 
 # script for automatizing the classification call
 
-total=30 # also for the seed
+#total=30 # also for the seed
+total=10 # also for the seed
 seq_begin=1
 
 dataset_path='./data/asos/1min'
