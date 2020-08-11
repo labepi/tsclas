@@ -12,7 +12,6 @@ import time
 
 # the path and name of the file to interpolate
 d_name = sys.argv[1]
-dsname = d_name.replace(".csv", "_"+method+".csv")
 #dsname = d_name.replace(".csv", "_spline.csv")
 
 # getting the interpolation method as argument
@@ -20,6 +19,9 @@ method = sys.argv[2]
 #method='linear'
 #method='polynomial'
 #method='spline'
+
+# the file to save
+dsname = d_name.replace(".csv", "_"+method+".csv")
 
 #print(d_name)
 #print(dsname)
