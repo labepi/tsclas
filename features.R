@@ -30,7 +30,7 @@
 # 10. (H) shannon entropy of BP distribution
 # 11. (C) complexity of BP dist.
 # 12. (FI) fisher information of BP dist.
-extractFeatures = function(X, D=3, tau_l=1:10)
+extractFeatures = function(X, D=3, tau_l=1:10, showTime=FALSE)
 {
     # TODO: check if this value must be given or set ouside here
     num_of_features = 12
@@ -53,10 +53,21 @@ extractFeatures = function(X, D=3, tau_l=1:10)
 
     for(i in 1:nrow(X))
     {
+        if (showTime == TRUE)
+        {
+            buildTimeSeries = Sys.time()
+        }
+
         M[i,] = extractFeatureSingle(X[i,], D, tau_l)
 
         #print(M[i,])
         #print(length(M[i,]))
+        
+        if (showTime == TRUE)
+        {
+            buildTimeSeries = difftime(Sys.time(), buildTimeSeries, units='sec')
+            cat('TIME PER SERIES:',buildTimeSeries,'\n')
+        }
     }
 
     #buildTime = difftime(Sys.time(), buildTime, units='sec')
@@ -108,36 +119,55 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
             next
         }
 
-        #buildTime = Sys.time()
+        #cat('\n\n')
+
         # pre-computing the symbols for both bpd ans g
+        #buildTime = Sys.time()
         symbols = bandt_pompe_c(as.numeric(x), D, tau)
         #symbols = bandt_pompe(as.numeric(x), D, tau)
-
         #buildTime = difftime(Sys.time(), buildTime, units='sec')
-        #print(buildTime)
+        #cat('TIME SYMBOLS:',buildTime,'\n')
 
         # computing the bandt_pompe distribution
+        #buildTime = Sys.time()
         bpd = bandt_pompe_distribution(symbols, D=D, tau=tau, useSymbols=TRUE)
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #cat('TIME BPD:',buildTime,'\n')
 
         # computing the bandt pompe transition graph
+        #buildTime = Sys.time()
         g = bandt_pompe_transition(symbols, D=D, tau=tau, useSymbols=TRUE)
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #cat('TIME TG:',buildTime,'\n')
         
         # bpd distribution features
         
         # shannon entropy
+        #buildTime = Sys.time()
         Hpi = shannon_entropy(bpd$probabilities, normalized=TRUE)
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #cat('TIME HS:',buildTime,'\n')
     
         # statistical complexity
+        #buildTime = Sys.time()
         Cpi = complexity(bpd$probabilities, Hpi)
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #cat('TIME SC:',buildTime,'\n')
 
         # fisher information
+        #buildTime = Sys.time()
         Fpi = fisher_information(bpd$probabilities)
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #cat('TIME FI:',buildTime,'\n')
         
         # transition graph features
 
         # edges and weights (non-zero transitions)
+        #buildTime = Sys.time()
         edges = g != 0
         weights = g[edges]
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #cat('TIME WEIGHTS:',buildTime,'\n')
         
         # number of edges
         lenE = sum(edges)
@@ -155,7 +185,10 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
         Fw = fisher_information(weights)
 
         # probability of self transitions
+        #buildTime = Sys.time()
         pst = matrix.trace(g)
+        #buildTime = difftime(Sys.time(), buildTime, units='sec')
+        #cat('TIME PST:',buildTime,'\n')
         
         # the current vector of features
         curdata = c(D, tau, lenE, meanEw, sdEw, Hw, Cw, Fw, pst, Hpi, Cpi, Fpi)

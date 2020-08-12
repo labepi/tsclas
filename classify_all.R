@@ -251,7 +251,7 @@ printdebug(paste('Original dimension TEST:',paste(dim(x_test), collapse='x')))
 
 buildTotalTime = Sys.time()
 
-printdebug('Selecting features')
+printdebug('Computing features for CCEP')
 
 buildTime = Sys.time()
 
@@ -304,7 +304,7 @@ print(buildTime)
 
 # mannually setting dtau
 #dtau = 1 # 
-#dtau = 3 # 
+#dtau = 20 # 
 
 printdebug(paste('Selected tau:',dtau))
 
