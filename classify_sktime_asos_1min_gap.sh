@@ -9,16 +9,25 @@ dataset_path='./data/asos/1min/gap'
 # time interval 
 time_int_l=( "1min" "5min" "10min" "15min" )
 
+if [ $# -ne 3 ]
+then
+    echo 'inform: span gapnum method'
+    exit
+fi
+
 # NOTE: making timespan as an argument, to run separated processes
 time_span=$1
 
 gap_num=$2
 
+# spline/linear/polynomial
+method=$3
+
 for time_int in "${time_int_l[@]}"
 do 
     for seed in $(seq $seq_begin $((seq_begin + total - 1)))
     do
-        d_name="asos_2020_jan_"$time_span"_"$time_int"_gap"$gap_num"_spline"
+        d_name="asos_2020_jan_"$time_span"_"$time_int"_gap"$gap_num"_"$method
         
         #echo $d_name $seed
         #continue
