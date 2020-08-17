@@ -17,6 +17,9 @@
 # D -  the embedding dimension
 # tau_l - a list of embedding delays, the returning features are
 #       collapsed sequentially by the tau used to compute them
+# na_aware - if TRUE, the symbols with only NAs will be counted separated
+# na_rm - if TRUE and na_aware=TRUE, the "NA patterns" are not counted
+#
 # Returns the following computed list of features (for each time series):
 # 1. D
 # 2. tau, 
@@ -30,7 +33,8 @@
 # 10. (H) shannon entropy of BP distribution
 # 11. (C) complexity of BP dist.
 # 12. (FI) fisher information of BP dist.
-extractFeatures = function(X, D=3, tau_l=1:10, showTime=FALSE)
+extractFeatures = function(X, D=3, tau_l=1:10, showTime=FALSE, 
+                           na_aware=FALSE, na_rm=FALSE)
 {
     # TODO: check if this value must be given or set ouside here
     num_of_features = 12
@@ -58,7 +62,8 @@ extractFeatures = function(X, D=3, tau_l=1:10, showTime=FALSE)
             buildTimeSeries = Sys.time()
         }
 
-        M[i,] = extractFeatureSingle(X[i,], D, tau_l)
+        M[i,] = extractFeatureSingle(X[i,], D, tau_l, 
+                                     na_aware=na_aware, na_rm=na_rm)
 
         #print(M[i,])
         #print(length(M[i,]))
@@ -82,6 +87,9 @@ extractFeatures = function(X, D=3, tau_l=1:10, showTime=FALSE)
 # D -  the embedding dimension
 # tau_l - a list of embedding delays, the returning features are
 #       collapsed sequentially by the tau used to compute them
+# na_aware - if TRUE, the symbols with only NAs will be counted separated
+# na_rm - if TRUE and na_aware=TRUE, the "NA patterns" are not counted
+#
 # Returns the following computed list of features:
 # 1. D
 # 2. tau, 
@@ -95,18 +103,11 @@ extractFeatures = function(X, D=3, tau_l=1:10, showTime=FALSE)
 # 10. (H) shannon entropy of BP distribution
 # 11. (C) complexity of BP dist.
 # 12. (FI) fisher information of BP dist.
-extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
+extractFeatureSingle = function(x, D=3, tau_l=1:10, na_aware=FALSE, na_rm=FALSE)
 {
     
     # all features will be together
     data = c()
-
-    # TODO: check this
-    # removing the NA's in the series before computing their features
-    #if (na.rm == TRUE)
-    #{
-    #    x = x[!is.na(x)]
-    #}
 
     # length of series
     m = length(x)
@@ -123,8 +124,22 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
 
         # pre-computing the symbols for both bpd ans g
         #buildTime = Sys.time()
-        symbols = bandt_pompe_c(as.numeric(x), D, tau)
-        #symbols = bandt_pompe(as.numeric(x), D, tau)
+
+        # this is the case where NA patterns are considered
+        if (na_aware == TRUE)
+        {
+            symbols = bandt_pompe_na_c(as.numeric(x), D, tau)
+
+            # if considered, but must be removed
+            if (na_rm == TRUE)
+            {
+                symbols = symbols[!is.na(symbols)]
+            }
+        } else {
+            symbols = bandt_pompe_c(as.numeric(x), D, tau)
+            #symbols = bandt_pompe(as.numeric(x), D, tau)
+        }
+        
         #buildTime = difftime(Sys.time(), buildTime, units='sec')
         #cat('TIME SYMBOLS:',buildTime,'\n')
 
@@ -143,31 +158,19 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
         # bpd distribution features
         
         # shannon entropy
-        #buildTime = Sys.time()
         Hpi = shannon_entropy(bpd$probabilities, normalized=TRUE)
-        #buildTime = difftime(Sys.time(), buildTime, units='sec')
-        #cat('TIME HS:',buildTime,'\n')
     
         # statistical complexity
-        #buildTime = Sys.time()
         Cpi = complexity(bpd$probabilities, Hpi)
-        #buildTime = difftime(Sys.time(), buildTime, units='sec')
-        #cat('TIME SC:',buildTime,'\n')
 
         # fisher information
-        #buildTime = Sys.time()
         Fpi = fisher_information(bpd$probabilities)
-        #buildTime = difftime(Sys.time(), buildTime, units='sec')
-        #cat('TIME FI:',buildTime,'\n')
         
         # transition graph features
 
         # edges and weights (non-zero transitions)
-        #buildTime = Sys.time()
         edges = g != 0
         weights = g[edges]
-        #buildTime = difftime(Sys.time(), buildTime, units='sec')
-        #cat('TIME WEIGHTS:',buildTime,'\n')
         
         # number of edges
         lenE = sum(edges)
@@ -185,10 +188,7 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
         Fw = fisher_information(weights)
 
         # probability of self transitions
-        #buildTime = Sys.time()
         pst = matrix.trace(g)
-        #buildTime = difftime(Sys.time(), buildTime, units='sec')
-        #cat('TIME PST:',buildTime,'\n')
         
         # the current vector of features
         curdata = c(D, tau, lenE, meanEw, sdEw, Hw, Cw, Fw, pst, Hpi, Cpi, Fpi)
@@ -214,10 +214,14 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na.rm=TRUE)
 # D -  the embedding dimension
 # tau_l - a list of embedding delays, the returning features are
 #       collapsed sequentially by the tau used to compute them
+# na_aware - if TRUE, the symbols with only NAs will be counted separated
+# na_rm - if TRUE and na_aware=TRUE, the "NA patterns" are not counted
+#
 # Returns the following computed list of features (for each time series):
 # 1. (H) shannon entropy of BP distribution
 # 2. (C) complexity of BP dist.
-extractFeaturesHC = function(X, D=3, tau_l=1:10, showTime=FALSE)
+extractFeaturesHC = function(X, D=3, tau_l=1:10, showTime=FALSE, 
+                             na_aware=FALSE, na_rm=FALSE)
 {
     # TODO: check if this value must be given or set ouside here
     num_of_features = 2
@@ -241,8 +245,8 @@ extractFeaturesHC = function(X, D=3, tau_l=1:10, showTime=FALSE)
             buildTimeSeries = Sys.time()
         }
         
-        M[i,] = extractFeatureSingleHC(X[i,], D, tau_l, showTime=showTime)
-
+        M[i,] = extractFeatureSingleHC(X[i,], D, tau_l, showTime=showTime,
+                                     na_aware=na_aware, na_rm=na_rm)
 
         if (showTime == TRUE)
         {
@@ -266,20 +270,17 @@ extractFeaturesHC = function(X, D=3, tau_l=1:10, showTime=FALSE)
 # D -  the embedding dimension
 # tau_l - a list of embedding delays, the returning features are
 #       collapsed sequentially by the tau used to compute them
+# na_aware - if TRUE, the symbols with only NAs will be counted separated
+# na_rm - if TRUE and na_aware=TRUE, the "NA patterns" are not counted
+#
 # Returns the following computed list of features:
 # 1. (H) shannon entropy of BP distribution
 # 2. (C) complexity of BP dist.
-extractFeatureSingleHC = function(x, D=3, tau_l=1:10, na.rm=TRUE, showTime=FALSE)
+extractFeatureSingleHC = function(x, D=3, tau_l=1:10, na.rm=TRUE, 
+                                  showTime=FALSE, na_aware=FALSE, na_rm=FALSE)
 {
     # all features will be together
     data = c()
-
-    # TODO: check this
-    # removing the NA's in the series before computing their features
-    #if (na.rm == TRUE)
-    #{
-    #    x = x[!is.na(x)]
-    #}
 
     # length of series
     m = length(x)
@@ -298,48 +299,21 @@ extractFeatureSingleHC = function(x, D=3, tau_l=1:10, na.rm=TRUE, showTime=FALSE
         }
         
         # computing the bandt_pompe distribution
-        bpd = bandt_pompe_distribution(as.numeric(x), D=D, tau=tau)
+        bpd = bandt_pompe_distribution(as.numeric(x), D=D, tau=tau,
+                                     na_aware=na_aware, na_rm=na_rm)
         #bpd = bandt_pompe_distribution2(as.numeric(x), D=D, tau=tau) #old version
+
         # shannon entropy
         Hpi = shannon_entropy(bpd$probabilities, normalized=TRUE)
+
         # statistical complexity
         Cpi = complexity(bpd$probabilities, Hpi)
 
-#        # pre-computing the symbols for both bpd ans g
-#        #buildTime = Sys.time()
-#        #symbols = bandt_pompe_c(as.numeric(x), D, tau)
-#        ##symbols = bandt_pompe(as.numeric(x), D, tau)
-#        #buildTime = difftime(Sys.time(), buildTime, units='sec')
-#        #cat('\tTIME SYMBOLS:',buildTime,'\n')
-#
-#        # computing the bandt_pompe distribution
-#        buildTime = Sys.time()
-#        bpd = bandt_pompe_distribution(as.numeric(x), D=D, tau=tau)
-#        #bpd = bandt_pompe_distribution2(as.numeric(x), D=D, tau=tau)
-#        #bpd = bandt_pompe_distribution(symbols, D=D, tau=tau, useSymbols=TRUE)
-#        #bpd = bandt_pompe_distribution2(symbols, D=D, tau=tau, useSymbols=TRUE)
-#        buildTime = difftime(Sys.time(), buildTime, units='sec')
-#        cat('\tTIME BPD:',buildTime,'\n')
-#
-#        # shannon entropy
-#        buildTime = Sys.time()
-#        Hpi = shannon_entropy(bpd$probabilities, normalized=TRUE)
-#        buildTime = difftime(Sys.time(), buildTime, units='sec')
-#        cat('\tTIME SHANNON:',buildTime,'\n')
-#    
-#        # statistical complexity
-#        buildTime = Sys.time()
-#        Cpi = complexity(bpd$probabilities, Hpi)
-#        buildTime = difftime(Sys.time(), buildTime, units='sec')
-#        cat('\tTIME COMPLEXITY:',buildTime,'\n')
-
-        #### end of the method per tau
         if (showTime == TRUE)
         {
             buildTimeTau = difftime(Sys.time(), buildTimeTau, units='sec')
             cat('TIME PER TAU:',buildTimeTau,'\n')
         }
-
 
         # the current vector of features
         curdata = c(Hpi, Cpi)

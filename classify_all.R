@@ -87,6 +87,7 @@ if (length(args) == 0)
     # for the botnet 2 class mode
     botnet_2class = FALSE
 
+
 } else {
     # loading the datasets
     d_name = args[1]
@@ -125,6 +126,11 @@ if (length(args) == 0)
         botnet_2class = args[6]
     }
 }
+
+#########################################
+# configurations for handling NA values ni time series
+na_aware=TRUE
+na_rm=TRUE
 
 # defining the seed
 set.seed(SEED)
@@ -256,7 +262,7 @@ printdebug('Computing features for CCEP')
 buildTime = Sys.time()
 
 # computing only the features used by find_tau
-sub_x_train = extractFeaturesHC(x_train, D, tau_l)
+sub_x_train = extractFeaturesHC(x_train, D, tau_l, na_aware=na_aware, na_rm=na_rm)
 
 Ncol = ncol(sub_x_train)
 
@@ -325,8 +331,8 @@ printdebug('Computing features for the selected tau')
 
 buildTime = Sys.time()
 
-x_train = extractFeatures(x_train, D, c(dtau))
-x_test = extractFeatures(x_test, D, c(dtau))
+x_train = extractFeatures(x_train, D, c(dtau), na_aware=na_aware, na_rm=na_rm)
+x_test = extractFeatures(x_test, D, c(dtau), na_aware=na_aware, na_rm=na_rm)
 
 buildTime = difftime(Sys.time(), buildTime, units='sec')
 print(buildTime)
