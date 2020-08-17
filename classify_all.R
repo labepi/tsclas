@@ -146,6 +146,12 @@ printdebug(paste('Embedding dimension D:',D))
 
 printdebug(paste('SEED:',SEED))
 
+if (na_aware == TRUE)
+    printdebug('NA_AWARE')
+    
+if (na_rm == TRUE)
+    printdebug('NA_RM')
+
 # 1. D
 # 2. tau, 
 # 3. length {(E(g4)),
