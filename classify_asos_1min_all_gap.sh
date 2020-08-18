@@ -20,7 +20,7 @@ time_int_l=( "1min" "5min" "10min" "15min" )
 # NOTE: making timespan as an argument, to run separated processes
 time_span=$2
 
-gap_num=$2
+gap_num=$3
 
 for time_int in "${time_int_l[@]}"
 do 
