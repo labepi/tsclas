@@ -529,5 +529,5 @@ acc = sum(res==y_test)/length(y_test)
 
 output1 = paste('FINAL_ACC', acc)
 
-cat(d_name,SEED,output1,buildTotalTime,'\n')
+cat(d_name_train,d_name_test,SEED,output1,buildTotalTime,'\n')
 
