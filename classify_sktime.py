@@ -36,6 +36,7 @@ from sklearn.model_selection import cross_val_score
 from sklearn.ensemble import VotingClassifier
 from sklearn.model_selection import GridSearchCV, LeaveOneOut
 
+#import impyute as impy
 
 
 # used only for the sktime algorithms
@@ -66,7 +67,7 @@ if (len(sys.argv) != 4):
 
 # jan 2020
 d_path = 'data/asos/1min' 
-d_name = 'asos_2020_jan_1day_15min_spline' 
+d_name = 'asos_2020_jan_1day_1min' 
 seed=1
 
 # getting arguments
@@ -84,26 +85,63 @@ y = X.iloc[:,-1] # last column
 X = X.loc[:, X.columns != 0]
 X = X.iloc[:,:-1] # all columns except last
 
+#print(X)
 #print(X.shape)
+
 
 # looping for each simulation
 #for seed in range(startseq,startseq+numtotal):
 
 print(d_name, end=' ', flush=True)
 
-# spliting train/test
-X_train, X_test, y_train, y_test = train_test_split(X, y, 
-        test_size=0.2, random_state=seed)
 
-# NOTE: since time series points can not be considered features, the
-# standardizatino must occur by rows, not columns
+##########################
+## PRE-PROCESSING
+##########################
+
+# performing imputation
+t = time.process_time()
+# mean
+#X = pd.DataFrame(impy.mean(X.values.transpose()).transpose(),
+#                        index=X.index, columns=X.columns)
+# locf
+#X = pd.DataFrame(impy.locf(X.values).transpose(),
+#                        index=X.index, columns=X.columns)
+# moving window
+#X = pd.DataFrame(impy.moving_window(X.values),
+#                        index=X.index, columns=X.columns)
+# filling NA values
+#X.interpolate(method='linear', axis=1, inplace=True,limit_direction='both')
+#X.interpolate(method='polynomial', order=3,axis=1,inplace=True,limit_direction='both')
+#X.interpolate(method='spline', order=3, axis=1, inplace=True,limit_direction='both')
+X.interpolate(method='cubicspline', axis=1, inplace=True,limit_direction='both')
+#X.fillna(0, inplace=True) # for filling the sides
+lap = time.process_time() - t
+print('impute: '+str(lap), end=' ', flush=True)
+
+
 
 # standardization of time series data
+# NOTE: since time series points can not be considered features, the
+# standardization must occur by rows, not columns
+t = time.process_time()
 scaler = StandardScaler()
-X_train = pd.DataFrame(scaler.fit_transform(X_train.values.transpose()).transpose(),
-                        index=X_train.index, columns=X_train.columns)
-X_test = pd.DataFrame(scaler.fit_transform(X_test.values.transpose()).transpose(),
-                        index=X_test.index, columns=X_test.columns)
+X = pd.DataFrame(scaler.fit_transform(X.values.transpose()).transpose(),
+                        index=X.index, columns=X.columns)
+lap = time.process_time() - t
+print('scale: '+str(lap), end=' ', flush=True)
+
+
+# spliting train/test
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=seed)
+
+
+# standardization of time series data
+#scaler = StandardScaler()
+#X_train = pd.DataFrame(scaler.fit_transform(X_train.values.transpose()).transpose(),
+#                        index=X_train.index, columns=X_train.columns)
+#X_test = pd.DataFrame(scaler.fit_transform(X_test.values.transpose()).transpose(),
+#                        index=X_test.index, columns=X_test.columns)
 
 # converting to sktime format
 X_train2 = from_table_to_data(X_train)
