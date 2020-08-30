@@ -111,10 +111,10 @@ t = time.process_time()
 #X = pd.DataFrame(impy.moving_window(X.values),
 #                        index=X.index, columns=X.columns)
 # filling NA values
-#X.interpolate(method='linear', axis=1, inplace=True,limit_direction='both')
+X.interpolate(method='linear', axis=1, inplace=True,limit_direction='both')
 #X.interpolate(method='polynomial', order=3,axis=1,inplace=True,limit_direction='both')
 #X.interpolate(method='spline', order=3, axis=1, inplace=True,limit_direction='both')
-X.interpolate(method='cubicspline', axis=1, inplace=True,limit_direction='both')
+#X.interpolate(method='cubicspline', axis=1, inplace=True,limit_direction='both')
 #X.fillna(0, inplace=True) # for filling the sides
 lap = time.process_time() - t
 print('impute: '+str(lap), end=' ', flush=True)
