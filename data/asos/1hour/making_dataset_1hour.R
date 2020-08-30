@@ -58,6 +58,8 @@ alltimes = seq(from = ymd_hms(myfrom), to = ymd_hms(myto), by=time_int)
 N = length(alltimes)
 #print(N)
 
+#quit()
+
 # transforming airport data to dataset
 #dataset_path = 'data/ASOS_1min_2020_fev'
 dataset_path = './raw'
@@ -160,7 +162,7 @@ for(name in stations)
     # the matrix of adjusted data
     #ds = matrix(NA, ncol=N+1, nrow=length(feats_l))
     # TODO: check if this is a slower option
-    ds = matrix(NA, ncol=N+1, nrow=0) 
+    ds = matrix(NA, ncol=1+N+1, nrow=0) 
     # NOTE: each feature is a different type (class) identified by its
     # position i in the feats_l list
 
@@ -183,10 +185,10 @@ for(name in stations)
         # just add the time series if it has the minimum number of valid
         # points, without NA values
         j = j+1
-        ds = rbind(ds, rep(NA, N+1))
+        ds = rbind(ds, rep(NA, 1+N+1))
         
         #ds[i,c(inds, TRUE)] = c(x[inds2,feats_l[i]], i)
-        ds[j,c(inds, TRUE)] = c(as.numeric(x[inds2,feats_l[i]]), i)
+        ds[j,c(TRUE, inds, TRUE)] = c(name, as.numeric(x[inds2,feats_l[i]]), i)
     }
     
     # toq log
