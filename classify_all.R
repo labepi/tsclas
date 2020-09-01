@@ -38,10 +38,6 @@ sourceCpp('C/ccep_functions.cpp')
 # the methods for extracting features
 loadSource('.', 'features.R')
 
-# TODO: if used, move it in includes.R
-library(randomForest)
-
-
 printdebug('Loaded libraries and functions')
 
 # reconfiguring the path for the datasets
@@ -154,27 +150,18 @@ if (na_rm == TRUE)
 
 # 1. D
 # 2. tau, 
+# 3. sd of G weights
+# 4. shannon entropy of G weights
+# 5. complexity of G weights
+# 6. fisher information of G weights
+# 7. PST
+# 8.  (H) shannon entropy of BP distribution
+# 9.  (C) complexity of BP dist.
+# 10. (FI) fisher information of BP dist.
+
+# NOTE: remove features
 # 3. length {(E(g4)),
 # 4. mean of G weights
-# 5. sd of G weights
-# 6. shannon entropy of G weights
-# 7. complexity of G weights
-# 8. fisher information of G weights
-# 9. PST
-# 10. (H) shannon entropy of BP distribution
-# 11. (C) complexity of BP dist.
-# 12. (FI) fisher information of BP dist.
-#FEATURES=c(3,6,7,8,9,10,11,12)
-
-# position of the features (H,C), according to the vector above
-#H_feat_num = 6 
-#C_feat_num = 7 
-
-# TODO: this is a test using all the 10 computed features
-FEATURES=3:12
-H_feat_num = 8
-C_feat_num = 9
-
 ################ LOADING DATASET
 
 printdebug('Loading datasets')
@@ -193,10 +180,6 @@ y_all = x_all[,ncol(x_all)]
 x_all = x_all[,-c(1,ncol(x_all))]
 
 printdebug('Datasets loaded')
-
-#print(D)
-#print(tau_l)
-
 
 ################ SPLIT TRAIN/TEST ###############
 
@@ -347,6 +330,9 @@ print(buildTime)
 x_train = x_train[,-c(1,2)]
 x_test = x_test[,-c(1,2)]
 
+#print(head(x_train))
+#quit()
+
 #print(head(x_train_tmp))
 #print(dim(x_train_tmp))
 
@@ -363,6 +349,25 @@ x_test = x_test[,-c(1,2)]
 
 printdebug(paste('New dimension TRAIN:',paste(dim(x_train), collapse='x')))
 printdebug(paste('New dimension TEST:',paste(dim(x_test), collapse='x')))
+
+
+# TODO: saving the current dataset
+#x_all2 = cbind(
+#      names_all,
+#      rbind(
+#        cbind(x_train, y_train), 
+#        cbind(x_test, y_test)
+#      )
+#      )
+#
+#print(dim(x_all2))
+#
+#savefile = 'dataset_test2.csv'
+#
+## saving appending in a file
+#write.table(x_all2, savefile, sep = ",", row.names=FALSE, col.names=FALSE)
+
+#quit()
 
 ################ PRE-PROCESS ###############
 
@@ -386,13 +391,20 @@ transform = preProcess(x_train, method=c("center", "scale"))
 x_train = predict(transform, x_train)
 x_test  = predict(transform, x_test)
 
+# for raw time series
+#transform1 = preProcess(t(x_train), method=c("center", "scale"))
+#transform2 = preProcess(t(x_test), method=c("center", "scale"))
+#x_train = t(predict(transform1, t(x_train)))
+#x_test = t(predict(transform2, t(x_test)))
+
+
 ##################################################
 ##################################################
 ######## TESTING SIMPLER CLASSIFIER ##############
 ##################################################
 ##################################################
 
-# Radon Forest classifier with tunning parameters
+# Radom Forest classifier with tunning parameters
 ##################################################
 
 # performing a custom caret package extension
@@ -482,8 +494,12 @@ x_test  = predict(transform, x_test)
 # NOTE: the same parameters as the python randf version
 ntree=200
 mtry=2
+#ntree=1000
+#mtry=3
 
 rf = randomForest(x_train, as.factor(y_train), mtry=mtry, ntree=ntree)
+
+#print(importance(rf))
 
 printdebug(paste('TRAIN accuracy: ', 1 - rf$err.rate[ntree,1]))
 

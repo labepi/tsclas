@@ -82,15 +82,8 @@ X = pd.read_csv(d_path+'/'+d_name+'.csv', header=None)
 # removing the label column
 names = X.iloc[:,0] # asos names (first column)
 y = X.iloc[:,-1] # last column
-X = X.loc[:, X.columns != 0]
+X = X.loc[:, X.columns != 0] # removing names
 X = X.iloc[:,:-1] # all columns except last
-
-#print(X)
-#print(X.shape)
-
-
-# looping for each simulation
-#for seed in range(startseq,startseq+numtotal):
 
 print(d_name, end=' ', flush=True)
 
@@ -128,9 +121,13 @@ t = time.process_time()
 scaler = StandardScaler()
 X = pd.DataFrame(scaler.fit_transform(X.values.transpose()).transpose(),
                         index=X.index, columns=X.columns)
+#X = pd.DataFrame(scaler.fit_transform(X.values),
+#                        index=X.index, columns=X.columns)
 lap = time.process_time() - t
 print('scale: '+str(lap), end=' ', flush=True)
 
+#print(X)
+#print(X.shape)
 
 # spliting train/test
 X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=seed)

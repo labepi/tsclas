@@ -37,12 +37,12 @@ extractFeatures = function(X, D=3, tau_l=1:10, showTime=FALSE,
                            na_aware=FALSE, na_rm=FALSE)
 {
     # TODO: check if this value must be given or set ouside here
-    num_of_features = 12
+    num_of_features = 10 #12
 
     # the features to compute
-    mycolumns = c('D', 'tau', 'lenE', 'meanEw', 'sdEw', 'Hw', 'Cw', 'Fw', 
-            'PST', 'Hpi', 'Cpi', 'Fpi')
-    
+    mycolumns = c('D', 'tau', 'sdEw', 'Hw', 'Cw', 'Fw', 'PST', 'Hpi', 'Cpi', 'Fpi')
+    # NOTE: these features have low importance
+    # 'lenE', 'meanEw', 
     #buildTime = Sys.time()
 
     # the length of the series
@@ -173,10 +173,10 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na_aware=FALSE, na_rm=FALSE)
         weights = g[edges]
         
         # number of edges
-        lenE = sum(edges)
+        #lenE = sum(edges)
 
         # mean of edges weights
-        meanEw = mean(weights)
+        #meanEw = mean(weights)
         
         # mean of edges weights
         sdEw = sd(weights)
@@ -191,7 +191,8 @@ extractFeatureSingle = function(x, D=3, tau_l=1:10, na_aware=FALSE, na_rm=FALSE)
         pst = matrix.trace(g)
         
         # the current vector of features
-        curdata = c(D, tau, lenE, meanEw, sdEw, Hw, Cw, Fw, pst, Hpi, Cpi, Fpi)
+        #curdata = c(D, tau, lenE, meanEw, sdEw, Hw, Cw, Fw, pst, Hpi, Cpi, Fpi)
+        curdata = c(D, tau, sdEw, Hw, Cw, Fw, pst, Hpi, Cpi, Fpi)
 
         # TODO: check this:
         # making NA and NaN features values to be 0?
