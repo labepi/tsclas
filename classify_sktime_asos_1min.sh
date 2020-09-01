@@ -20,12 +20,13 @@ for time_int in "${time_int_l[@]}"
 do 
     for seed in $(seq $seq_begin $((seq_begin + total - 1)))
     do
-        d_name="asos_2020_jan_"$time_span"_"$time_int"_"$method
+        #d_name="asos_2020_jan_"$time_span"_"$time_int"_"$method
+        d_name="asos_2020_jan_"$time_span"_"$time_int
         
         #echo $d_name $seed
         #continue
 
-        python3 classify_sktime.py $dataset_path $d_name $seed 
+        python3 classify_sktime.py $dataset_path $d_name $seed $method
         
     done
 done
