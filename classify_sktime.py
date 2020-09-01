@@ -60,7 +60,7 @@ def from_table_to_data(x):
 #numtotal = 1
 #startseq = 1
 
-if (len(sys.argv) != 4):
+if (len(sys.argv) != 5):
     quit('Error on arguments')
 
 # RAW time series
@@ -69,12 +69,13 @@ if (len(sys.argv) != 4):
 d_path = 'data/asos/1min' 
 d_name = 'asos_2020_jan_1day_1min' 
 seed=1
+impute_method='linear'
 
 # getting arguments
 d_path=sys.argv[1]
 d_name=sys.argv[2]
 seed=int(sys.argv[3])
-
+impute_method=sys.argv[4]
 
 # loading data
 X = pd.read_csv(d_path+'/'+d_name+'.csv', header=None)
@@ -104,7 +105,8 @@ t = time.process_time()
 #X = pd.DataFrame(impy.moving_window(X.values),
 #                        index=X.index, columns=X.columns)
 # filling NA values
-X.interpolate(method='linear', axis=1, inplace=True,limit_direction='both')
+X.interpolate(method=impute_method, axis=1, inplace=True,limit_direction='both')
+#X.interpolate(method='linear', axis=1, inplace=True,limit_direction='both')
 #X.interpolate(method='polynomial', order=3,axis=1,inplace=True,limit_direction='both')
 #X.interpolate(method='spline', order=3, axis=1, inplace=True,limit_direction='both')
 #X.interpolate(method='cubicspline', axis=1, inplace=True,limit_direction='both')
