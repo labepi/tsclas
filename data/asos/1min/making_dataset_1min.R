@@ -34,12 +34,13 @@ if (length(args) >= 3)
 # the list of features to use from the dataset
 feats_l = c(
 'tmpf', # Air Temperature in Fahrenheit, typically @ 2 meters
-'dwpf', # Dew Point Temperature in Fahrenheit, typically @ 2 meters
 'drct', # Wind Direction in degrees from north
 'sknt', # Wind Speed in knots
 'pres1' # Pressure altimeter in inches
 )
 
+# NOTE: removing dewpoint, since it is the same as temperature
+# 'dwpf', # Dew Point Temperature in Fahrenheit, typically @ 2 meters
 # NOTE: there is no relh in 1min datasets
 # 'relh', # Relative Humidity in %
 
