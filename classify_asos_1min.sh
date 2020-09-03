@@ -1,14 +1,10 @@
 
 # script for automatizing the classification call
 
-if [ $# -eq 0 ]
-then
-    D=3
-else
-    D=$1
-fi
+# the mebedding dimension
+D=$1
 
-total=10 # also for the seed
+total=30 # also for the seed
 seq_begin=1
 
 dataset_path='./data/asos/1min'
@@ -21,15 +17,14 @@ time_span=$2
 
 for time_int in "${time_int_l[@]}"
 do 
-    for seed in $(seq $seq_begin $((seq_begin+total)))
+    for seed in $(seq $seq_begin $((seq_begin+total-1)))
     do
-        d_name="asos_2020_jan_"$time_span"_"$time_int"_feats"
+        d_name="asos_2020_jan_"$time_span"_"$time_int
         
         #echo $d_name $seed
-
         #continue
 
-        Rscript classify.R $d_name $D $seed $dataset_path
+        Rscript classify.R $dataset_path $d_name $D $seed 
         
     done
 done

@@ -12,6 +12,9 @@ source('utils.R')
 # loading the bandt-pompe functions
 loadSource(bandt_pompe_path, 'bandt_pompe.R')
 
+# loading the transition graph functions
+loadSource(bandt_pompe_path, 'bandt_pompe_graph.R')
+
 # loading the measures functions
 loadSource(bandt_pompe_path, 'measures.R')
 
@@ -32,6 +35,9 @@ loadSource('.', 'find_tau.R')
 # the Cpp functions
 sourceCpp('C/ccep_functions.cpp')
 
+# the methods for extracting features
+loadSource('.', 'features.R')
+
 printdebug('Loaded libraries and functions')
 
 # reconfiguring the path for the datasets
@@ -43,11 +49,8 @@ if (length(args) == 0)
 {
     # loading the datasets
     # asos
-    #d_name = 'asos_1min_2020_fev_1hour_spline_feats' # fev/2020
-    #d_name = 'asos_1min_2020_fev_6hour_spline_feats' # fev/2020
-
-    # botnet
-    d_name = 'HpHp_L1_mean_feats' # 
+    d_name = 'asos_2020_jan_1day_10min' # jan/2020
+    #d_name = 'asos_2020_jan_1day_10min_spline' # jan/2020
 
     # isiot
     #d_name = 'wunder_2015jan_spline_feats' # jan/2015
@@ -58,14 +61,10 @@ if (length(args) == 0)
     D=3
 
     # embedding delay
-    #tau_l=1:50
+    tau_l=1:30
 
     # ASOS
-    #dataset_path='./data/asos/1min_2020_fev_feats'
-
-    # botnet
-    dataset_path='./data/botnet/1000'
-    #dataset_path='../extern/botnet_attack_iot'
+    dataset_path='./data/asos/1min'
 
     # isiot
     #dataset_path='./data/isiot/datasets30/2015'
@@ -74,30 +73,22 @@ if (length(args) == 0)
     #ISIoT = TRUE
     ISIoT = FALSE
 
-    # for the botnet 2 class mode
-    botnet_2class = FALSE
-
 } else {
-    # loading the datasets
-    d_name = args[1]
+    # the reconfiguration of dataset path
+    dataset_path = args[1]
+    
+    # the dataset name
+    d_name = args[2]
     
     # the Bandt-Pompe parameters
 
     # embedding dimension
-    D = as.numeric(args[2])
+    D = as.numeric(args[3])
     
     # embedding delay
-    #tau_l = 1:10
+    tau_l = 1:30
     
-    SEED = as.numeric(args[3])
-
-    # the reconfiguration of dataset path
-    if (length(args) < 4)
-    {
-        dataset_path='./data/asos/1min_2020_fev_feats'
-    } else {
-        dataset_path = args[4]
-    }
+    SEED = as.numeric(args[4])
 
     # defining the ISIoT split
     if (length(args) < 5)
@@ -107,14 +98,12 @@ if (length(args) == 0)
         ISIoT = args[5]
     }
     
-    # defining the botnet two or more classification
-    if (length(args) < 6)
-    {
-        botnet_2class = FALSE
-    } else {
-        botnet_2class = args[6]
-    }
 }
+
+#########################################
+# configurations for handling NA values ni time series
+na_aware=TRUE
+na_rm=TRUE
 
 # defining the seed
 set.seed(SEED)
@@ -130,81 +119,48 @@ printdebug(paste('Embedding dimension D:',D))
 
 printdebug(paste('SEED:',SEED))
 
+if (na_aware == TRUE)
+    printdebug('NA_AWARE')
+    
+if (na_rm == TRUE)
+    printdebug('NA_RM')
+
 # 1. D
 # 2. tau, 
+# 3. sd of G weights
+# 4. shannon entropy of G weights
+# 5. complexity of G weights
+# 6. fisher information of G weights
+# 7. PST
+# 8.  (H) shannon entropy of BP distribution
+# 9.  (C) complexity of BP dist.
+# 10. (FI) fisher information of BP dist.
+
+# NOTE: remove features
 # 3. length {(E(g4)),
 # 4. mean of G weights
-# 5. sd of G weights
-# 6. shannon entropy of G weights
-# 7. complexity of G weights
-# 8. fisher information of G weights
-# 9. PST
-# 10. (H) shannon entropy of BP distribution
-# 11. (C) complexity of BP dist.
-# 12. (FI) fisher information of BP dist.
-FEATURES=c(3,6,7,8,9,10,11,12)
-
-# position of the features (H,C), according to the vector above
-H_feat_num = 6 
-C_feat_num = 7 
-
-# TODO: this is a test using all the 10 computed features
-FEATURES=3:12
-H_feat_num = 8
-C_feat_num = 9
+################ LOADING DATASET
 
 printdebug('Loading datasets')
 
+# load raw data and apply transformation to compute features
+    
+# the dataset path and name
+pathname = paste(dataset_path,'/',d_name,'.csv', sep='')
 
-if (LOAD_PRECOMPUTED == TRUE)
-{
-    # load pre-computed transformations
-        
-    ###########################################
+# load data
+x_all = read.csv(pathname, header=FALSE)
 
-    pathname = paste(dataset_path,'/D',D,'/',d_name,'.csv', sep='')
-
-    x_all = read.csv(pathname, header=FALSE)
-    y_all = x_all[,ncol(x_all)]
-    x_all = x_all[,-ncol(x_all)]
-
-} else {
-
-    # TODO: finish this code here
-
-    # load raw data and apply transformation to compute features
-
-    d_train = paste(dataset_path,'/',d_name,'/',d_name,'_TRAIN.arff', sep='')
-    d_test  = paste(dataset_path,'/',d_name,'/',d_name,'_TEST.arff', sep='')
-
-    # TRAIN
-    x_train = loadDataset(d_train)
-    y_train = attr(x_train_org, 'y')
-
-    # TEST
-    x_test = loadDataset(d_test)
-    y_test = attr(x_test_org, 'y')
-
-    # TODO: perform the transformations here
-
-}
-
-
-# TODO: check if these information are necessary
+# NOTE: all datasets now have the asos names as first column
+names_all = x_all[,1]
+y_all = x_all[,ncol(x_all)]
+x_all = x_all[,-c(1,ncol(x_all))]
 
 printdebug('Datasets loaded')
 
 ################ SPLIT TRAIN/TEST ###############
 
-# transforming the class in only two for the botnet:
-# - benign data
-# - malicious data
-if (botnet_2class == TRUE)
-{
-    printdebug("Botnet 2class")
-
-    y_all[y_all != 1] = 2
-} 
+printdebug('Datasets split train/test')
 
 # define the split rate
 
@@ -246,180 +202,171 @@ m = ncol(x_train)
 # number of classes
 num_classes = length(unique(y_train))
 
-# computing the number of features for each tau
-num_tau = ncol(x_train)/length(FEATURES)
-
-# computing the tau=1 position of H
-H_pos = num_tau*(H_feat_num-1)+1 # based on the FEATURES items
-
-# computing the tau=1 position of C
-C_pos = num_tau*(C_feat_num-1)+1 # based on the FEATURES items
-
 printdebug(paste('Original dimension TRAIN:',paste(dim(x_train), collapse='x')))
 printdebug(paste('Original dimension TEST:',paste(dim(x_test), collapse='x')))
 
-printdebug(paste('Maximum number of tau:',num_tau))
+################ FINDING BEST TAU
 
-#############################################################
+# Step 1. 
 
+#buildTotalTime = Sys.time()
+
+printdebug('Computing features for CCEP')
+
+buildTime = Sys.time()
+# computing only the features used by find_tau
+sub_x_train = extractFeaturesHC(x_train, D, tau_l, na_aware=na_aware, na_rm=na_rm)
+Ncol = ncol(sub_x_train)
+# adjusting features: all Hs, all Cs
+sub_x_train = sub_x_train[,c(seq(1, Ncol, by=2), seq(2, Ncol, by=2))]
+#print(head(sub_x_train))
+#print(dim(sub_x_train))
+t_ccep = difftime(Sys.time(), buildTime, units='sec')
+
+# Step 2.
+    
 # Computing the best tau for this D to select the features
 
-printdebug('Selecting features')
+printdebug('Selecting best tau')
+
+# computing the number of features for each tau
+num_tau = ncol(sub_x_train)/2 #length(FEATURES)
 
 # number of tau variation for each feature
-num_tau_per_feat = m/length(FEATURES)
+#num_tau_per_feat = m/length(FEATURES)
+num_tau_per_feat = m/2
 
-# subset of x_train, filtering the columns with H and C values, for the
-# tau_l considered
-sub_x_train = x_train[,c(H_pos:(H_pos+num_tau-1),C_pos:(C_pos+num_tau-1))]
 
-#x=sub_x_train; y=y_train; tau_l=1:num_tau
+printdebug(paste('Maximum number of tau:',num_tau))
 
+
+buildTime = Sys.time()
 # finding the best tau for this train set
 dtau = find_tau(x=sub_x_train, y=y_train, D=D, tau_l=1:num_tau)
+t_findtau = difftime(Sys.time(), buildTime, units='sec')
 
 # mannually setting dtau
 #dtau = 1 # 
-#dtau = 3 # 
+#dtau = 20 # 
 
-printdebug(paste('Selected tau:',dtau))
+#printdebug(paste('Selected tau:',dtau))
+cat(d_name,SEED,'SELECTED_TAU', dtau,'\n')
 
-# ths indices to extract the features for the i-th tau
-feats_tau_ind = seq(dtau,m,by=num_tau_per_feat)
+#############################################################
 
-#print(feats_tau_ind)
+# computing all the features for the specific pair (D,tau)
 
-# re-adjusting datasets
-x_train = x_train[,feats_tau_ind]
-x_test = x_test[,feats_tau_ind]
+printdebug('Computing features for the selected tau')
+
+# train
+buildTime = Sys.time()
+x_train = extractFeatures(x_train, D, c(dtau), na_aware=na_aware, na_rm=na_rm)
+t_features_train = difftime(Sys.time(), buildTime, units='sec')
+# test
+buildTime = Sys.time()
+x_test = extractFeatures(x_test, D, c(dtau), na_aware=na_aware, na_rm=na_rm)
+t_features_test = difftime(Sys.time(), buildTime, units='sec')
+
+# removing columns D,tau
+x_train = x_train[,-c(1,2)]
+x_test = x_test[,-c(1,2)]
 
 printdebug(paste('New dimension TRAIN:',paste(dim(x_train), collapse='x')))
 printdebug(paste('New dimension TEST:',paste(dim(x_test), collapse='x')))
+
+# TODO: saving the current dataset
+#x_all2 = cbind(
+#      names_all,
+#      rbind(
+#        cbind(x_train, y_train), 
+#        cbind(x_test, y_test)
+#      )
+#      )
+#
+#print(dim(x_all2))
+#
+#savefile = 'dataset_test2.csv'
+#
+## saving appending in a file
+#write.table(x_all2, savefile, sep = ",", row.names=FALSE, col.names=FALSE)
 
 ################ PRE-PROCESS ###############
 
 printdebug('Removing NA values')
 
-# TODO: test if another method for removing NAs is best, such as some
-# impute method (mean, mode, etc)
-
+# just for the cases where features are computed as NAs
 x_train = as.matrix(x_train)
 x_test = as.matrix(x_test)
-
 x_train[is.na(x_train)] = 0
 x_test[is.na(x_test)] = 0
 
-
 printdebug('Scaling data')
 
+
+
 # preprocesing the features dataset
+# train
+buildTime = Sys.time()
 transform = preProcess(x_train, method=c("center", "scale"))
-
 x_train = predict(transform, x_train)
+t_scale_train = difftime(Sys.time(), buildTime, units='sec')
+# test
+buildTime = Sys.time()
 x_test  = predict(transform, x_test)
+t_scale_test = difftime(Sys.time(), buildTime, units='sec')
 
 ##################################################
-##################################################
-######## TESTING SIMPLER CLASSIFIER ##############
-##################################################
+## CLASSIFICATION 
 ##################################################
 
-# Radon Forest classifier with tunning parameters
+# Radom Forest classifier without tunning parameters
 ##################################################
-
-# performing a custom caret package extension
-
-printdebug('Tunning randomForest parameters')
-
-# tunning metric is accuracy
-metric = "Accuracy"
-
-# creating the custom classifier
-customRF = list(type = "Classification", library = "randomForest", loop = NULL)
-
-# configuring tunning parametrs
-customRF$parameters = data.frame(parameter = c("mtry", "ntree"),
-                                  class = rep("numeric", 2),
-                                  label = c("mtry", "ntree"))
-
-# setting options and functions
-customRF$grid = function(x, y, len = NULL, search = "grid") {}
-customRF$fit  = function(x, y, wts, param, lev, last, weights, classProbs) {
-  randomForest(x, y,
-               mtry = param$mtry,
-               ntree=param$ntree)
-}
-
-#Predict label
-customRF$predict = function(modelFit, newdata, preProc = NULL, submodels = NULL)
-   predict(modelFit, newdata)
-
-#Predict prob
-customRF$prob = function(modelFit, newdata, preProc = NULL, submodels = NULL)
-   predict(modelFit, newdata, type = "prob")
-
-customRF$sort   = function(x) x[order(x[,1]),]
-customRF$levels = function(x) x$classes
-
-# if parallelization is enabled
-if (DO_PARALLEL)
-{
-    if (CORES_NUM==-1)
-        cores = makeCluster(detectCores()-1)
-    else
-        cores = makeCluster(CORES_NUM)
-    registerDoParallel(cores = cores)
-}
 
 ################ BEGIN TRAIN ###############
 
-# train model
-control = trainControl(method="repeatedcv", 
-                        number=10, 
-                        repeats=3,
-                        allowParallel = TRUE)
+# NOTE: the same parameters as the python randf version
+ntree=200
+mtry=2
 
-# the features interval for tunning
-#tunegrid = expand.grid(.mtry=c(1:15),.ntree=c(100, 200, 500, 1000, 1500))
-tunegrid = expand.grid(.mtry=c(1:6),.ntree=c(200, 350, 500))
+buildTime = Sys.time()
+rf = randomForest(x_train, as.factor(y_train), mtry=mtry, ntree=ntree)
+t_train = difftime(Sys.time(), buildTime, units='sec')
 
+#print(importance(rf))
 
-# training the customized classifier
-rf = train(x_train, as.factor(y_train), 
-                method=customRF, 
-                metric=metric, 
-                tuneGrid=tunegrid, 
-                trControl=control)
-
-printdebug(paste('Tunned parameters: ',
-                 paste(c('mtry', 'ntree'), rf$bestTune,
-                       collapse=' ')))
-
-printdebug(paste('TRAIN accuracy: ',
-                    rf$results[rownames(rf$bestTune),'Accuracy']))
-
-#summary(rf)
-#plot(rf)
-#print(rf)
+cat(d_name,SEED,'TRAIN_ACC', 1 - rf$err.rate[ntree,1],'\n')
 
 ################ BEGIN TEST ###############
 
 # testing the tunned parameters
 
-
 # predicting on x_test
-res = predict(rf, x_test)
+buildTime = Sys.time()
+y_pred = predict(rf, x_test)
+t_test = difftime(Sys.time(), buildTime, units='sec')
 
-printdebug(paste('Predicted test:', paste(y_test, res, sep='-', collapse=',')))
+# printing string y_test-y_pred
+cat(d_name,SEED,'PREDICTED', 
+    paste(y_test, y_pred, sep='-', collapse=','),'\n')
+
+cat(d_name,SEED,'TIME_TRAIN',
+     'ccep:',t_ccep,
+     'findtau:',t_findtau,
+     'feats:',t_features_train,
+     'scale:',t_scale_train,
+     'train:',t_train,'\n')
+
+cat(d_name,SEED,'TIME_TEST',
+     'feats:',t_features_test,
+     'scale:',t_scale_test,
+     'test:',t_test,'\n')
 
 # confusion matrix
 #cm = confusionMatrix(table(y_test,res))
 #printdebug(paste('OVERALL accuracy: ', cm$overall['Accuracy']))
 #output1 = paste('FINAL_ACC', cm$overall['Accuracy'])
 
-acc = sum(res==y_test)/length(y_test)
+acc = sum(y_test==y_pred)/length(y_test)
 
-output1 = paste('FINAL_ACC', acc)
-
-cat(d_name,SEED,output1,'\n')
+cat(d_name,SEED,'FINAL_ACC',acc,'\n')
 
