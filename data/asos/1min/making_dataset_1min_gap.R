@@ -43,7 +43,6 @@ gap_pct=gap_num/100
 # the list of features to use from the dataset
 feats_l = c(
 'tmpf', # Air Temperature in Fahrenheit, typically @ 2 meters
-'dwpf', # Dew Point Temperature in Fahrenheit, typically @ 2 meters
 'drct', # Wind Direction in degrees from north
 'sknt', # Wind Speed in knots
 'pres1' # Pressure altimeter in inches
@@ -51,6 +50,8 @@ feats_l = c(
 
 # NOTE: there is no relh in 1min datasets
 # 'relh', # Relative Humidity in %
+# dew point is the same as temperature
+# 'dwpf', # Dew Point Temperature in Fahrenheit, typically @ 2 meters
 
 # create the new adjusted dataset
 myfrom='2020-01-01 00:00:00'
