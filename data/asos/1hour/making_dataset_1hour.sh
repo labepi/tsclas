@@ -1,8 +1,5 @@
 #!/bin/bash
 
-# time interval 
-time_int_l=( "1 min" "5 min" "10 min" "15 min" )
-
 # NOTE: making timespan as an argument, to run separated processes
 time_span=$1
 
@@ -24,10 +21,7 @@ time_int="1 hour"
         myto="2020-03-31 23:59:00"
     fi
  
-    #for time_int in "${time_int_l[@]}"
-    #do       
-	    echo "SETUP" "$time_int" "$myto" "$time_span"
-	    Rscript making_dataset_1hour.R "$time_int" "$myto" "$time_span"
-    #done
+	echo "SETUP" "$time_int" "$myto" "$time_span"
+	Rscript making_dataset_1hour.R "$time_int" "$myto" "$time_span"
 #done
 
