@@ -113,7 +113,8 @@ set.seed(SEED)
 # the percentage of train dataset split
 train_pct = TRAIN_PCT # from config.R
 
-printdebug(d_name)
+printdebug(paste('TRAIN',d_name_train))
+printdebug(paste('TEST',d_name_test))
 
 # old debug
 #printdebug(paste('(D,tau): ',D,',',paste(range(tau_l), collapse=':'), sep=''))
@@ -261,7 +262,7 @@ t_findtau = difftime(Sys.time(), buildTime, units='sec')
 #dtau = 20 # 
 
 #printdebug(paste('Selected tau:',dtau))
-cat(d_name,SEED,'SELECTED_TAU', dtau,'\n')
+cat(d_name_train,d_name_test,SEED,'SELECTED_TAU', dtau,'\n')
 
 #############################################################
 
@@ -345,7 +346,7 @@ t_train = difftime(Sys.time(), buildTime, units='sec')
 
 #print(importance(rf))
 
-cat(d_name,SEED,'TRAIN_ACC', 1 - rf$err.rate[ntree,1],'\n')
+cat(d_name_train,d_name_test,SEED,'TRAIN_ACC', 1 - rf$err.rate[ntree,1],'\n')
 
 ################ BEGIN TEST ###############
 
@@ -357,17 +358,17 @@ y_pred = predict(rf, x_test)
 t_test = difftime(Sys.time(), buildTime, units='sec')
 
 # printing string y_test-y_pred
-cat(d_name,SEED,'PREDICTED', 
+cat(d_name_train,d_name_test,SEED,'PREDICTED', 
     paste(y_test, y_pred, sep='-', collapse=','),'\n')
 
-cat(d_name,SEED,'TIME_TRAIN',
+cat(d_name_train,d_name_test,SEED,'TIME_TRAIN',
      'ccep:',t_ccep,
      'findtau:',t_findtau,
      'feats:',t_features_train,
      'scale:',t_scale_train,
      'train:',t_train,'\n')
 
-cat(d_name,SEED,'TIME_TEST',
+cat(d_name_train,d_name_test,SEED,'TIME_TEST',
      'feats:',t_features_test,
      'scale:',t_scale_test,
      'test:',t_test,'\n')
@@ -379,5 +380,5 @@ cat(d_name,SEED,'TIME_TEST',
 
 acc = sum(y_test==y_pred)/length(y_test)
 
-cat(d_name,SEED,'FINAL_ACC',acc,'\n')
+cat(d_name_train,d_name_test,SEED,'FINAL_ACC',acc,'\n')
 
