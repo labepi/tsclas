@@ -67,7 +67,7 @@ def from_table_to_data(x):
     
     return x_data
 
-if (len(sys.argv) != 6):
+if (len(sys.argv) < 6):
     quit('Error on arguments')
 
 # RAW time series
@@ -86,6 +86,12 @@ seed=int(sys.argv[3])
 impute_method=sys.argv[4]
 algorithm=sys.argv[5]
 
+if (len(sys.argv) < 7):
+    isiot="FALSE"
+else:
+    isiot=sys.argv[6]
+
+
 # percent to split train/test
 train_pct=0.8
 
@@ -101,8 +107,34 @@ X = X.iloc[:,:-1] # all columns except last
 ##########################
 ## SPLITING TRAIN/TEST
 ##########################
-X_train, X_test, y_train, y_test = train_test_split(X, y,
+
+
+if (isiot=="TRUE"):
+    print('ISIoT split')
+    # for loading the ISIoT split
+    stationsfile = './data/isiot/cities.usa.csv'
+    stations = pd.read_csv(stationsfile)
+    stations_type = stations.iloc[:,7]
+    
+    # using the same tag of the paper
+    inds = stations_type == 'C'
+    id_train = pd.Series(np.zeros(240, dtype=bool))
+    #id_train_tmp = np.ceil(pd.Series(list(range(1,240+1)))/4) - 1
+    
+    for i in range(len(id_train)):
+        ind_tmp = int(np.ceil((i+1)/4) - 1)
+        id_train[i] = inds[ind_tmp]
+        #print(i, ind_tmp, inds[ind_tmp])
+    
+    X_train = X.loc[id_train,]
+    y_train = y.loc[id_train]
+    X_test = X.loc[-id_train,]
+    y_test = y.loc[-id_train]
+
+else:
+    X_train, X_test, y_train, y_test = train_test_split(X, y,
         train_size=train_pct, random_state=seed)
+
 X_train = pd.DataFrame(X_train)
 X_test = pd.DataFrame(X_test)
 

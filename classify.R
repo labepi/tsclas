@@ -167,15 +167,15 @@ printdebug('Datasets split train/test')
 # NOTE: performing the same split as the ISIoT paper
 if (ISIoT == TRUE)
 {
-        printdebug("ISIoT split")
-        # for loading the ISIoT split
-        stationsfile = './data/isiot/cities.usa.txt'
-        stations = read.table(stationsfile, stringsAsFactors=FALSE)
-        stations_type = stations[,7]
+    printdebug("ISIoT split")
+    # for loading the ISIoT split
+    stationsfile = './data/isiot/cities.usa.txt'
+    stations = read.table(stationsfile, stringsAsFactors=FALSE)
+    stations_type = stations[,7]
 
-        # using the same tag of the paper
-        inds = which(stations_type == 'C')
-        id_train = which(ceiling(1:240 / 4) %in% inds)
+    # using the same tag of the paper
+    inds = which(stations_type == 'C')
+    id_train = which(ceiling(1:240 / 4) %in% inds)
 } else {
     id_train = createDataPartition(y=y_all, p=train_pct, list=FALSE)
 }
