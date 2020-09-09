@@ -56,9 +56,9 @@ alltimes = seq(from = ymd_hms(myfrom), to = ymd_hms(myto), by=time_int)
 
 # size of perfect dataset
 N = length(alltimes)
-print(N)
+#print(N)
 
-quit()
+#quit()
 
 # transforming airport data to dataset
 #dataset_path = 'data/ASOS_1min_2020_fev'
