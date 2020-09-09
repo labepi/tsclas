@@ -56,9 +56,9 @@ alltimes = seq(from = ymd_hms(myfrom), to = ymd_hms(myto), by=time_int)
 
 # size of perfect dataset
 N = length(alltimes)
-#print(N)
+print(N)
 
-#quit()
+quit()
 
 # transforming airport data to dataset
 #dataset_path = 'data/ASOS_1min_2020_fev'
@@ -171,7 +171,11 @@ for(name in stations)
     # adjusting the data by type
     for(i in 1:length(feats_l))
     {
-        na_num = sum(is.na(x[inds2,feats_l[i]]))
+        # converting to numeric, 'M' values will be the NA values
+        xtmp = as.numeric(x[inds2,feats_l[i]])
+
+        # counting NA values
+        na_num = sum(is.na(xtmp))
 
         #cat(N,na_num,'\n')
         #print(x[inds2,feats_l[i]])
@@ -188,7 +192,7 @@ for(name in stations)
         ds = rbind(ds, rep(NA, 1+N+1))
         
         #ds[i,c(inds, TRUE)] = c(x[inds2,feats_l[i]], i)
-        ds[j,c(TRUE, inds, TRUE)] = c(name, as.numeric(x[inds2,feats_l[i]]), i)
+        ds[j,c(TRUE, inds, TRUE)] = c(name, xtmp, i)
     }
     
     # toq log
