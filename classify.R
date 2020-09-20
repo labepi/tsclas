@@ -40,8 +40,8 @@ loadSource('.', 'features.R')
 
 printdebug('Loaded libraries and functions')
 
-print(sessionInfo())
-quit()
+#print(sessionInfo())
+#quit()
 
 # reconfiguring the path for the datasets
 
