@@ -4,9 +4,9 @@ Classification of IoT data with ordinal patterns transformations.
 
 # Description
 
-In this project a classification of the Collaborative IoT time series is proposed, based on the knowledge extracted from a set of reliable time series.
-
-These reliable time series is the set of airport weather stations from several parts of the world.
+In this project a classification of IoT time series based on the class
+separability analysis of their ordinal patterns tfransformation is
+proposed.
 
 # Folders and Files
 
@@ -40,17 +40,13 @@ These reliable time series is the set of airport weather stations from several p
 
 # Datasets considered
 
-- asos/
+- data/asos/
     - the ASOS files, could be the raw data and the pre-computed
       features
 
-- montori/
-    - the IoT data files used for the Montori et al. paper
+- data/asos/1min
+    - the ASOS files, for 1-minute time interval
 
-- anomaly/
-    - the dataset for anomaly detection from botnet attacks on IoT
-      devices
-
-- thingspeak
-    - our compiled version of the thingspeak IoT datasets
+- data/asos/1hour
+    - the ASOS files, for 1-hour time interval
 
