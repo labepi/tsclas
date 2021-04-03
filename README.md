@@ -1,4 +1,4 @@
-# class_iot
+# tsclas
 
 Classification of IoT data with ordinal patterns transformations.
 
