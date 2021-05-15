@@ -14,7 +14,10 @@ num_tau=30
 time_span=$2
 
 # time interval 
-time_int_l=( "1min" "5min" "10min" "15min" )
+#time_int_l=( "1min" "5min" "10min" "15min" )
+#time_int_l=( "10min" "15min" )
+time_int_l=( "15min" )
+#time_int_l=( "10min" )
 
 # path
 dataset_path='./data/asos/1min'

@@ -98,6 +98,8 @@ X = read.csv(X_path, header=FALSE)
 
 #print(dim(X))
 
+# TODO: remove the column for asos names here
+
 # removing the class label
 y = X[,ncol(X)]
 X = X[,-ncol(X)]

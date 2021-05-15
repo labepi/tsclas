@@ -6,7 +6,7 @@ BEGIN {
 {
     delta=$col-avg; 
     avg+=delta/NR; 
-    mean2+=delta*($4-avg);
+    mean2+=delta*($col-avg);
 } 
 END {
     print avg" "sqrt(mean2/(NR-1))" "NR; 
