@@ -4,3 +4,7 @@
 *.out
 *.o
 *.so
+*.pdf
+*.svg
+*.png
+
